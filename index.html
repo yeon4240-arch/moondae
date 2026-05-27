@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> 트래블 아카이브 ✈️</title>
+    <title>스마트 트래블 아카이브 ✈️</title>
     <style>
         :root {
             --primary-color: #2a6fdb;
@@ -143,7 +143,8 @@
         <div class="input-row">
             <input type="date" id="expense-date">
             <select id="currency-select">
-                <option value="KRW">한국 원화 (₩)</option>
+                <option value="all">✨ 전체 대상(공통)</option>
+                <option value="KRW" selected>한국 원화 (₩)</option>
                 <option value="JPY">일본 엔화 (¥)</option>
                 <option value="USD">미국 달러 ($)</option>
                 <option value="CNY">중국 위안화 (¥)</option>
@@ -168,7 +169,8 @@
         </div>
         <div class="input-row">
             <select id="wish-cat-select">
-                <option value="goods">🎯 굿즈</option>
+                <option value="all">✨ 전체 대상(공통)</option>
+                <option value="goods" selected>🎯 굿즈</option>
                 <option value="clothes">👚 옷/의류</option>
                 <option value="gift">🎁 선물/기념품</option>
                 <option value="etc">기타</option>
@@ -194,7 +196,8 @@
         </div>
         <div class="input-row">
             <select id="pack-cat-select">
-                <option value="essential">필수품</option>
+                <option value="all">✨ 전체 대상(공통)</option>
+                <option value="essential" selected>필수품</option>
                 <option value="clothing">의류/세면</option>
                 <option value="etc">기타</option>
             </select>
@@ -282,11 +285,8 @@
                     exchangeRates.USD = parseFloat(data.rates.KRW.toFixed(1));
                     exchangeRates.JPY = parseFloat(((data.rates.KRW / data.rates.JPY) * 100).toFixed(2));
                     exchangeRates.CNY = parseFloat((data.rates.KRW / data.rates.CNY).toFixed(1));
-                    document.getElementById('exchange-status').innerText = `⚡ 실시간 환율 반영 완료 | JPY(100엔): ${exchangeRates.JPY}원 | USD: ${exchangeRates.USD}원`;
                 }
-            } catch (e) {
-                document.getElementById('exchange-status').innerText = `⚠️ 고정 환율 모드 적용중`;
-            }
+            } catch (e) {}
             updateBudget(); renderExpenseList(); renderWishList();
         }
 
@@ -405,11 +405,12 @@
             setTodayDates(); renderDayTabs(); updateBudget(); renderExpenseList(); renderWishList(); renderPack(); renderTimeline(); renderDiaries();
         }
 
-        // --- 1. 가계부 탭 전환 및 렌더링 ---
+        // --- 1. 가계부 ---
         function switchExpenseTab(target, btnElement) {
             document.querySelectorAll('#expense-tabs-container .tab-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
             currentExpenseTab = target;
+            document.getElementById('currency-select').value = target; // 입력창 드롭다운 동기화
             renderExpenseList();
         }
 
@@ -435,18 +436,18 @@
             const p = getActive(); const listEl = document.getElementById('expense-list'); listEl.innerHTML = '';
             p.expenses.sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
 
-            // 'all' 이면 필터링 없이 전체 포함출력, 아니면 해당 통화만 필터링
-            let filtered = p.expenses.filter(item => currentExpenseTab === 'all' || item.currency === currentExpenseTab);
+            let filtered = p.expenses.filter(item => currentExpenseTab === 'all' || item.currency === currentExpenseTab || item.currency === 'all');
 
             filtered.forEach(item => {
                 const li = document.createElement('li'); li.className = 'expense-item';
                 let imgBox = item.img ? `<img src="${item.img}" class="attached-img">` : `<label class="file-label">📸 사진<input type="file" class="file-input" accept="image/*" onchange="uploadExpenseImg(${item.id}, this)"></label>`;
+                let displaySign = item.currency === 'all' ? '전체' : item.currencySign;
                 li.innerHTML = `
                     <div class="expense-left">
                         <div id="ex-img-${item.id}">${imgBox}</div>
                         <div class="expense-info" id="ex-display-${item.id}">
                             <span style="font-weight:600;">${item.title}</span><span class="expense-date">${item.date}</span>
-                            <span class="currency-detail">${item.costInKrw.toLocaleString()}원 (${item.inputCost.toLocaleString()}${item.currencySign})</span>
+                            <span class="currency-detail">${item.costInKrw.toLocaleString()}원 (${item.inputCost.toLocaleString()}${displaySign})</span>
                         </div>
                     </div>
                     <div class="action-btns" id="ex-btns-${item.id}"><button class="btn-edit" onclick="showEditExpenseForm(${item.id})">수정</button><button class="btn-del" onclick="deleteExpense(${item.id})">삭제</button></div>
@@ -478,11 +479,12 @@
         }
         function deleteExpense(id) { const p = getActive(); p.expenses = p.expenses.filter(e => e.id !== id); updateBudget(); renderExpenseList(); }
 
-        // --- 2. 쇼핑 위시리스트 (모두보기 로직 고정) ---
+        // --- 2. 쇼핑 위시리스트 ---
         function switchWishTab(target, btnElement) {
             document.querySelectorAll('#wish-tabs-container .tab-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active'); 
             currentWishTab = target; 
+            document.getElementById('wish-cat-select').value = target; // 드롭다운 동기화
             renderWishList();
         }
         function addWishItem() {
@@ -495,13 +497,12 @@
         function renderWishList() {
             const p = getActive(); const container = document.getElementById('wish-list'); container.innerHTML = '';
             
-            // 'all' 이면 필터링 건너뛰고 전체 포함출력
-            let filtered = p.wishItems.filter(item => currentWishTab === 'all' || item.category === currentWishTab);
+            let filtered = p.wishItems.filter(item => currentWishTab === 'all' || item.category === currentWishTab || item.category === 'all');
             
             if(filtered.length === 0) { container.innerHTML = '<p style="font-size:12px; color:#94a3b8; text-align:center; padding:12px 0;">등록된 아이템이 없습니다.</p>'; return; }
             filtered.forEach(item => {
                 const li = document.createElement('li'); li.className = 'expense-item';
-                let catText = item.category === 'goods' ? '🎯 굿즈' : item.category === 'clothes' ? '👚 옷' : item.category === 'gift' ? '🎁 선물' : '기타';
+                let catText = item.category === 'goods' ? '🎯 굿즈' : item.category === 'clothes' ? '👚 옷' : item.category === 'gift' ? '🎁 선물' : item.category === 'all' ? '✨ 공통' : '기타';
                 let imgBox = item.img ? `<img src="${item.img}" class="attached-img">` : `<label class="file-label">📸 사진<input type="file" class="file-input" accept="image/*" onchange="uploadWishImg(${item.id}, this)"></label>`;
                 let linkTag = item.url ? `<br><a href="${item.url.startsWith('http') ? item.url : 'https://'+item.url}" target="_blank" class="link-url">🔗 상품 링크 바로가기</a>` : '';
                 li.innerHTML = `
@@ -529,7 +530,7 @@
             const p = getActive(); const item = p.wishItems.find(w => w.id === id);
             document.getElementById(`wish-display-${id}`).innerHTML = `
                 <div class="edit-mode-box">
-                    <select id="edit-wish-cat-${id}"><option value="goods" ${item.category==='goods'?'selected':''}>🎯 굿즈</option><option value="clothes" ${item.category==='clothes'?'selected':''}>👚 옷</option><option value="gift" ${item.category==='gift'?'selected':''}>🎁 선물</option><option value="etc" ${item.category==='etc'?'selected':''}>기타</option></select>
+                    <select id="edit-wish-cat-${id}"><option value="all">✨ 공통</option><option value="goods" ${item.category==='goods'?'selected':''}>🎯 굿즈</option><option value="clothes" ${item.category==='clothes'?'selected':''}>👚 옷</option><option value="gift" ${item.category==='gift'?'selected':''}>🎁 선물</option><option value="etc" ${item.category==='etc'?'selected':''}>기타</option></select>
                     <input type="text" id="edit-wish-title-${id}" value="${item.title}"><input type="text" id="edit-wish-cost-${id}" value="${item.cost}"><input type="text" id="edit-wish-memo-${id}" value="${item.memo}"><input type="text" id="edit-wish-url-${id}" value="${item.url || ''}">
                 </div>`;
             document.getElementById(`wish-btns-${id}`).innerHTML = `<button class="btn-main" onclick="saveEditedWishItem(${id})" style="padding:6px;">저장</button><button class="btn-sort" onclick="renderWishList()" style="padding:6px;">취소</button>`;
@@ -541,11 +542,12 @@
         }
         function deleteWishItem(id) { const p = getActive(); p.wishItems = p.wishItems.filter(w => w.id !== id); saveData(); renderWishList(); }
 
-        // --- 3. 짐싸기 체크리스트 (모두보기 로직 고정) ---
+        // --- 3. 짐싸기 체크리스트 ---
         function switchPackTab(target, btnElement) {
             document.querySelectorAll('#pack-tabs-container .tab-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active'); 
             currentPackTab = target; 
+            document.getElementById('pack-cat-select').value = target; // 드롭다운 동기화
             renderPack();
         }
         function addTodo() {
@@ -556,22 +558,25 @@
         function renderPack() {
             const p = getActive(); const container = document.getElementById('pack-container'); container.innerHTML = '';
             
-            // 'all' 이면 전체 포함출력
-            p.packItems.filter(i => currentPackTab === 'all' || i.category === currentPackTab).forEach(item => {
+            p.packItems.filter(i => currentPackTab === 'all' || i.category === currentPackTab || i.category === 'all').forEach(item => {
                 const div = document.createElement('div'); div.className = 'check-item';
-                div.innerHTML = `<label class="check-label ${item.done ? 'done' : ''}"><input type="checkbox" ${item.done?'checked':''} onclick="togglePackCheck(${item.id})"><span>[${item.category==='essential'?'필수':item.category==='clothing'?'의류':'기타'}] ${item.text}</span></label><button class="btn-del" onclick="deletePack(${item.id})">삭제</button>`;
+                let catBadge = item.category === 'essential' ? '필수' : item.category === 'clothing' ? '의류' : item.category === 'all' ? '공통' : '기타';
+                div.innerHTML = `<label class="check-label ${item.done ? 'done' : ''}"><input type="checkbox" ${item.done?'checked':''} onclick="togglePackCheck(${item.id})"><span>[${catBadge}] ${item.text}</span></label><button class="btn-del" onclick="deletePack(${item.id})">삭제</button>`;
                 container.appendChild(div);
             });
         }
         function togglePackCheck(id) { const p = getActive(); const item = p.packItems.find(i => i.id === id); if(item) item.done = !item.done; saveData(); renderPack(); }
         function deletePack(id) { const p = getActive(); p.packItems = p.packItems.filter(i => i.id !== id); saveData(); renderPack(); }
 
-        // --- 4. 일정 플래너 (모든날짜 보기 완벽 격리 수리) ---
+        // --- 4. 일정 플래너 ---
         function renderDayTabs() {
             const p = getActive(); const nav = document.getElementById('day-tabs-nav'); const select = document.getElementById('plan-day-select');
             if(!nav || !select) return;
             nav.innerHTML = `<button class="tab-btn ${currentDayTab==='all'?'active':''}" onclick="switchDayTab('all')">🗓️ 모든날짜</button>`; select.innerHTML = '';
             
+            // 모든 날짜 보기일 때 입력창에 '전체 공통 일정' 옵션 삽입
+            select.innerHTML += `<option value="all">✨ 전체 대상(공통일정)</option>`;
+
             for(let i=1; i<=p.daysCount; i++) {
                 let key = `day${i}`;
                 if(!p.targetSchedule[key]) p.targetSchedule[key] = [];
@@ -579,7 +584,7 @@
                 select.innerHTML += `<option value="${key}">${i}일차</option>`;
             }
             nav.innerHTML += `<button class="btn-add-tab" onclick="addNewTravelDay()">+ 일차 추가</button>`;
-            if(currentDayTab !== 'all') { select.value = currentDayTab; }
+            select.value = currentDayTab;
         }
         function addNewTravelDay() { const p = getActive(); p.daysCount++; p.targetSchedule[`day${p.daysCount}`] = []; saveData(); renderDayTabs(); renderTimeline(); }
         function switchDayTab(target) { currentDayTab = target; renderDayTabs(); renderTimeline(); }
@@ -587,8 +592,16 @@
         function addTimelineItem() {
             const p = getActive(); const dayKey = document.getElementById('plan-day-select').value; const time = document.getElementById('plan-time').value; const location = document.getElementById('plan-location').value.trim(); const memo = document.getElementById('plan-memo').value.trim(); const url = document.getElementById('plan-url').value.trim();
             if(!location) return; 
-            if(!p.targetSchedule[dayKey]) p.targetSchedule[dayKey] = [];
-            p.targetSchedule[dayKey].push({ id: Date.now(), time, location, memo, url });
+
+            if(dayKey === 'all') {
+                // '모든날짜/공통일정'으로 등록할 경우 1일차에 임시 삽입하거나 전용공간 배치가 가능하나, 직관성을 위해 day1에 삽입해 노출되게 유도합니다.
+                if(!p.targetSchedule['day1']) p.targetSchedule['day1'] = [];
+                p.targetSchedule['day1'].push({ id: Date.now(), time, location, memo: memo + ' (공통)', url, isAllDay: true });
+            } else {
+                if(!p.targetSchedule[dayKey]) p.targetSchedule[dayKey] = [];
+                p.targetSchedule[dayKey].push({ id: Date.now(), time, location, memo, url, isAllDay: false });
+            }
+            
             document.getElementById('plan-location').value = ''; document.getElementById('plan-memo').value = ''; document.getElementById('plan-url').value = '';
             saveData(); renderTimeline();
         }
@@ -606,7 +619,6 @@
             };
 
             if (currentDayTab === 'all') {
-                // '모든날짜' 탭 클릭 시: 1일차부터 순서대로 모든 데이터 루프를 돌아 화면에 다 박아줍니다.
                 for(let i=1; i<=p.daysCount; i++) { 
                     let key = `day${i}`; 
                     let list = p.targetSchedule[key] || []; 
@@ -614,7 +626,6 @@
                     list.forEach((item, index) => appendItem(key, item, index)); 
                 }
             } else {
-                // 단일 일차 클릭 시: 해당 일차 일정만 정렬해서 박아줍니다.
                 let list = p.targetSchedule[currentDayTab] || []; 
                 list.sort((a,b) => a.time.localeCompare(b.time) || a.id - b.id); 
                 list.forEach((item, index) => appendItem(currentDayTab, item, index)); 
