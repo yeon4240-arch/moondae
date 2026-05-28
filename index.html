@@ -324,7 +324,6 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             btnElement.classList.add('active');
             
-            // 드래그 기능 연결을 돕기 위해 위시리스트나 플래너 전환 시 리렌더링 유도
             if(pageId === 'page-wishlist') renderWishList();
             if(pageId === 'page-planner') { renderDayTabs(); renderTimeline(); renderPlannerTodoList(); }
         }
@@ -343,7 +342,7 @@
                             totalBudget: 1000000, 
                             expenses: [], 
                             wishItems: [], 
-                            packItems: [...defaultPackList], // 고정 필수템 바인딩
+                            packItems: [...defaultPackList], 
                             daysCount: 3, 
                             targetSchedule: { day1:[], day2:[], day3:[] }, 
                             diaries: [] 
@@ -395,7 +394,7 @@
             if(!p.wishItems) p.wishItems = [];
             if(!p.diaries) p.diaries = [];
             if(!p.expenses) p.expenses = [];
-            if(!p.packItems || p.packItems.length === 0) p.packItems = [...defaultPackList]; // 유실 방지 고정값 체크
+            if(!p.packItems || p.packItems.length === 0) p.packItems = [...defaultPackList]; 
             if(!p.targetSchedule) p.targetSchedule = { day1:[], day2:[], day3:[] };
             if(!p.daysCount) p.daysCount = Object.keys(p.targetSchedule).length || 3;
             return p;
@@ -420,7 +419,6 @@
             };
         }
 
-        // 비동기 여러 장 처리를 위한 프로미스 래퍼 함수
         function compressImagePromise(file) {
             return new Promise((resolve) => {
                 compressImage(file, resolve);
@@ -483,7 +481,7 @@
                 totalBudget: 1000000, 
                 expenses: [], 
                 wishItems: [], 
-                packItems: [...defaultPackList], // 새 여행지 생성 시에도 필수 고정 세팅 주입
+                packItems: [...defaultPackList], 
                 daysCount: 3, 
                 targetSchedule: { day1:[], day2:[], day3:[] }, 
                 diaries: [] 
@@ -545,7 +543,6 @@
             filtered.forEach(item => {
                 const li = document.createElement('li'); li.className = 'expense-item';
                 
-                // 단일/다중 배열 호환 처리 및 사진 레이아웃 동적 렌더링
                 let imgsArr = item.imgs || (item.img ? [item.img] : []);
                 let imgBox = '<div style="display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin-right:10px;">';
                 imgsArr.forEach(imgUrl => {
@@ -678,7 +675,7 @@
             document.getElementById(`wish-display-${id}`).innerHTML = `
                 <div class="edit-mode-box">
                     <select id="edit-wish-cat-${id}"><option value="all">✨ 공통</option><option value="destination" ${item.category==='destination'?'selected':''}>🗺️ 여행지</option><option value="goods" ${item.category==='goods'?'selected':''}>🎯 굿즈</option><option value="clothes" ${item.category==='clothes'?'selected':''}>👚 옷</option><option value="gift" ${item.category==='gift'?'selected':''}>🎁 선물</option><option value="etc" ${item.category==='etc'?'selected':''}>기타</option></select>
-                    <input type="text" id="edit-wish-title-${id}" value="${item.title}" autocomplete="off" autocapitalize="off" spellcheck="false"><input type="text" id="edit-wish-cost-${id}" value="${item.cost}"><input type="text" id="edit-wish-memo-${id}" value="${item.memo}" autocomplete="off" autocapitalize="off" spellcheck="false"><input type="text" id="edit-wish-url-${id}" value="${item.url || ''}" autocomplete="off" autocapitalize="off" spellcheck="false">
+                    <input type="text" id="edit-wish-title-${id}" value="${item.title}" autocomplete="off" autocapitalize="off" spellcheck="false"><input type="text" id="edit-wish-cost-${id}" value="${item.cost}"><input type="text" id="edit-wish-memo-${id}" value="${item.memo}" autocomplete="off" autocapitalize="off" spellcheck="false"><input type="text" id="edit-wish-url-${id}" value="${item.url || ''}" autocomplete="off" autocapitalize="off" spellcheck="false}">
                 </div>`;
             document.getElementById(`wish-btns-${id}`).innerHTML = `<button class="btn-main" onclick="saveEditedWishItem(${id})" style="padding:6px;">저장</button><button class="btn-sort" onclick="renderWishList()" style="padding:6px;">취소</button>`;
         }
@@ -738,6 +735,7 @@
             ev.currentTarget.classList.remove('dragover');
         }
 
+        // [수정] 위시리스트의 고유 데이터 포맷 전체를 그대로 복사하여 플래너 객체에 보존
         function dropWishItem(ev) {
             ev.preventDefault();
             ev.currentTarget.classList.remove('dragover');
@@ -757,15 +755,18 @@
                     id: Date.now(),
                     time: "12:00", 
                     location: targetItem.title,
-                    memo: `[위시추가] 예상비용:${targetItem.cost} / 메모:${targetItem.memo}`,
-                    url: targetItem.url,
+                    category: targetItem.category || 'all',
+                    cost: targetItem.cost || '미정',
+                    memo: targetItem.memo || '메모 없음',
+                    url: targetItem.url || '',
+                    imgs: targetItem.imgs ? [...targetItem.imgs] : (targetItem.img ? [targetItem.img] : []),
                     isAllDay: false
                 });
                 
                 saveData();
                 renderTimeline();
                 renderPlannerTodoList();
-                alert(`✅ [${targetItem.title}] 항목이 플래너 ${activeDayKey.replace('day','')}일차 일정으로 복사 추가되었습니다!`);
+                alert(`✅ [${targetItem.title}] 항목이 플래너에 원래 양식 그대로 추가되었습니다!`);
             }
         }
 
@@ -804,14 +805,44 @@
             saveData(); renderTimeline();
         }
         
+        // [수정] 플래너 화면 출력 시에도 위시리스트의 배지/이미지/비용 양식을 그대로 렌더링하도록 보완
         function renderTimeline() {
             const p = getActive(); const container = document.getElementById('timeline-container'); container.innerHTML = '';
             const appendItem = (dayKey, item, index) => {
                 const div = document.createElement('div'); div.className = 'timeline-item';
                 let linkTag = item.url ? `<br><a href="${item.url.startsWith('http') ? item.url : 'https://'+item.url}" target="_blank" class="link-url">🔗 참고 웹사이트 이동</a>` : '';
-                let badge = `<span class="day-badge">${dayKey.replace('day','')}일차</span> `;
+                let dayBadge = `<span class="day-badge">${dayKey.replace('day','')}일차</span> `;
+                
+                // 위시리스트의 카테고리 배지 복제 생성
+                let catBadge = '';
+                if(item.category) {
+                    let catText = item.category === 'destination' ? '🗺️ 여행지' : item.category === 'goods' ? '🎯 굿즈' : item.category === 'clothes' ? '👚 옷' : item.category === 'gift' ? '🎁 선물' : item.category === 'all' ? '✨ 공통' : '기타';
+                    catBadge = `<span class="wish-badge" style="display:inline-block; margin-left:6px; vertical-align:middle; background:${item.category==='destination'?'#dbeafe':''}; color:${item.category==='destination'?'#1e40af':''};">${catText}</span>`;
+                }
+
+                // 위시리스트의 이미지 컨테이너 복제 생성
+                let imgBox = '';
+                let imgsArr = item.imgs || [];
+                if(imgsArr.length > 0) {
+                    imgBox = '<div style="display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin:6px 0;">';
+                    imgsArr.forEach(imgUrl => {
+                        imgBox += `<img src="${imgUrl}" class="attached-img">`;
+                    });
+                    imgBox += '</div>';
+                }
+
+                // 위시리스트의 예상 비용 레이아웃 복제 생성
+                let costDetail = item.cost ? `<div style="font-size:12px; color:var(--wish-color); font-weight:600; margin-top:2px;">예상 비용: ${item.cost}</div>` : '';
+
                 div.innerHTML = `
-                    <div style="flex:1;" id="tl-display-${dayKey}-${index}">${badge}<span class="time">${item.time}</span><div class="location">${item.location}</div><div class="memo">${item.memo || '메모 없음'}</div>${linkTag}</div>
+                    <div style="flex:1;" id="tl-display-${dayKey}-${index}">
+                        ${dayBadge}<span class="time">${item.time}</span>${catBadge}
+                        <div class="location" style="font-size:14px; font-weight:700; color:#0f172a; margin:4px 0;">${item.location}</div>
+                        ${imgBox}
+                        ${costDetail}
+                        <div class="memo" style="font-size:12px; color:#64748b; margin-top:2px;">📝 ${item.memo || '메모 없음'}</div>
+                        ${linkTag}
+                    </div>
                     <div class="action-btns" id="tl-btns-${dayKey}-${index}"><button class="btn-edit" onclick="showEditTimelineForm('${dayKey}', ${index})">수정</button><button class="btn-del" onclick="deleteTimeline('${dayKey}', ${index})">삭제</button></div>`;
                 container.appendChild(div);
             };
@@ -844,14 +875,12 @@
         
         function deleteTimeline(dayKey, index) { const p = getActive(); p.targetSchedule[dayKey].splice(index, 1); saveData(); renderTimeline(); }
 
-        // [신설] 일정 플래너 하단의 여행지 전용 Todo 리스트 렌더링 함수
         function renderPlannerTodoList() {
             const p = getActive();
             const container = document.getElementById('planner-todo-list');
             if(!container) return;
             container.innerHTML = '';
             
-            // 위시리스트 중 'destination(여행지)' 카테고리만 필터링
             let filtered = p.wishItems.filter(item => item.category === 'destination');
             
             if(filtered.length === 0) {
@@ -915,7 +944,6 @@
             p.diaries.forEach(item => {
                 const div = document.createElement('div'); div.className = 'diary-card'; 
                 
-                // 단일/다중 배열 호환 처리 및 일기 사진 상하 정렬 출력
                 let imgsArr = item.imgs || (item.img ? [item.img] : []);
                 let imgTag = '';
                 if(imgsArr.length > 0) {
