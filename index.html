@@ -14,47 +14,102 @@
             --card-bg: #ffffff;
             --edit-color: #eab308;
             --wish-color: #10b981;
+            --backup-color: #4f46e5;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding: 16px; padding-bottom: 40px; }
-        header { text-align: center; padding: 20px 0 10px 0; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 16px; padding-bottom: 60px; }
+        header { text-align: center; padding: 15px 0 15px 0; }
         header h1 { font-size: 24px; font-weight: 800; color: #0f172a; }
         
-        .section { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        /* 네비게이션 바 스타일 */
+        .nav-bar { display: flex; background: white; padding: 6px; border-radius: 14px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05); margin-bottom: 20px; overflow-x: auto; gap: 4px; position: sticky; top: 0; z-index: 1000; border: 1px solid #e2e8f0; }
+        .nav-btn { flex: 1; padding: 10px 8px; border: none; background: transparent; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; border-radius: 10px; white-space: nowrap; text-align: center; transition: all 0.2s; }
+        .nav-btn.active { background: var(--primary-color); color: white; box-shadow: 0 4px 8px rgba(42, 111, 219, 0.2); }
+
+        /* 페이지 섹션 제어 */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
+        .section { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04); border: 1px solid #f1f5f9; }
         .section-title { font-size: 18px; font-weight: 700; margin-bottom: 14px; color: #334155; display: flex; align-items: center; gap: 6px; }
-        
-        /* 여행 리스트 스타일 */
-        .travel-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--secondary-color); border-radius: 12px; margin-bottom: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .travel-item:hover { background: #e2e8f0; }
-        .travel-item.active { background: var(--primary-color); color: white; }
-        .btn-delete-travel { background: none; border: none; color: var(--accent-color); font-weight: bold; cursor: pointer; font-size: 14px; }
+        .section h2 { font-size: 17px; font-weight: 700; margin-bottom: 16px; color: #0f172a; }
 
-        /* 입력 폼 스타일 */
-        .input-group { display: flex; gap: 8px; margin-bottom: 12px; }
-        input, textarea, select { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: white; }
-        input:focus, textarea:focus, select:focus { border-color: var(--primary-color); }
+        /* 여행 리스트 아이템 */
+        .travel-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: var(--secondary-color); border-radius: 12px; margin-bottom: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+        .travel-item:hover { background: #e2e8f0; border-color: #cbd5e1; }
+        .btn-delete-travel { background: none; border: none; color: var(--accent-color); font-weight: bold; cursor: pointer; font-size: 14px; padding: 4px 8px; }
+
+        /* 일기장 바로가기 아이템 */
+        .diary-go-item { display: flex; align-items: center; padding: 12px 16px; background: #f5f3ff; color: #5b21b6; border: 1px dashed #c084fc; border-radius: 12px; margin-bottom: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .diary-go-item:hover { background: #ede9fe; transform: translateY(-1px); }
+
+        .backup-zone { background: #eef2ff; border: 1px dashed #c7d2fe; padding: 12px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+        .backup-btns { display: flex; gap: 8px; }
+        .btn-backup { background: var(--backup-color); color: white; border: none; font-weight: 600; cursor: pointer; flex: 1; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; }
+        .btn-restore { background: white; color: var(--backup-color); border: 1px solid #c7d2fe; font-weight: 600; cursor: pointer; flex: 1; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; display: inline-flex; align-items: center; justify-content: center; }
+
+        .category-tabs { display: flex; gap: 6px; margin-bottom: 16px; background: var(--secondary-color); padding: 4px; border-radius: 10px; overflow-x: auto; align-items: center; }
+        .tab-btn { padding: 8px 12px; border: none; background: transparent; color: #64748b; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; white-space: nowrap; }
+        .tab-btn.active { background: white; color: var(--primary-color); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+
+        .input-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        input, select, button, textarea { padding: 11px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; }
+        input[type="text"], input[type="number"], input[type="time"], input[type="date"], select, textarea { flex: 1; min-width: 120px; }
+        textarea { resize: none; height: 75px; }
         
-        /* 버튼 스타일 */
-        button { border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        .btn-main { background: var(--primary-color); color: white; padding: 12px 20px; font-size: 14px; }
+        .file-label { padding: 6px 10px; background: #edf2f7; border-radius: 6px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed #cbd5e1; color: #4a5568; }
+        .file-input { display: none; }
+
+        .btn-main { background: var(--primary-color); color: white; border: none; font-weight: 600; cursor: pointer; padding: 11px 20px; }
         .btn-main:hover { background: #1d5bbf; }
-        .btn-diary-go { background: #4f46e5; color: white; width: 100%; padding: 16px; font-size: 16px; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-        .btn-diary-go:hover { background: #4338ca; }
-        .btn-back { background: #64748b; color: white; padding: 8px 14px; font-size: 14px; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-del { background: #fee2e2; color: var(--accent-color); border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        .btn-edit { background: #fef9c3; color: #a16207; border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        .btn-sort { background: #f1f5f9; color: #475569; border: none; padding: 6px 8px; border-radius: 6px; font-size: 12px; }
+        .btn-back-main { background: #64748b; color: white; border: none; padding: 10px 16px; border-radius: 10px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 16px; }
 
-        /* 일기 아이템 스타일 */
-        .diary-item { background: var(--secondary-color); border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; }
-        .diary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
-        .diary-date { font-weight: 700; color: var(--primary-color); font-size: 14px; }
-        .diary-actions { display: flex; gap: 8px; }
-        .btn-edit { color: var(--edit-color); background: none; font-size: 13px; }
-        .btn-del { color: var(--accent-color); background: none; font-size: 13px; }
-        .diary-text { font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: #334155; }
+        .exchange-status { font-size: 12px; color: #64748b; margin-bottom: 12px; background: #f1f5f9; padding: 8px; border-radius: 8px; text-align: center; }
+        .attached-img { width: 55px; height: 55px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; margin-right: 6px; }
+        .budget-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .budget-box { background: var(--secondary-color); padding: 12px; border-radius: 12px; text-align: center; }
+        .budget-box span { font-size: 12px; color: #64748b; }
+        .budget-box p { font-size: 16px; font-weight: 700; margin-top: 4px; }
+        
+        .expense-list { list-style: none; border-top: 1px dashed #e2e8f0; padding-top: 8px; }
+        .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; border-bottom: 1px solid #f1f5f9; background: white; }
+        
+        .expense-left { display: flex; align-items: center; width: 75%; }
+        .expense-info { display: flex; flex-direction: column; width: 100%; }
+        .expense-date { font-size: 11px; color: #94a3b8; }
+        .currency-detail { font-size: 11px; color: #64748b; margin-top: 2px; }
+        .action-btns { display: flex; gap: 4px; }
 
-        /* 화면 전환용 공통 스타일 */
+        .wish-badge { background: #d1fae5; color: #065f46; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; width: max-content; margin-bottom: 3px; display: inline-block; }
+        .link-url { font-size: 11px; color: var(--primary-color); text-decoration: none; display: inline-block; word-break: break-all; margin-top: 2px; }
+        .edit-mode-box { display: flex; flex-direction: column; gap: 6px; background: #f8fafc; padding: 8px; border-radius: 8px; width: 100%; margin: 4px 0; border: 1px solid #e2e8f0; }
+
+        .check-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 4px; border-bottom: 1px solid #f8fafc; }
+        .check-label { display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1; font-size: 14px; }
+        .check-label.done span { text-decoration: line-through; color: #94a3b8; }
+
+        .timeline { position: relative; padding-left: 20px; }
+        .timeline::before { content: ''; position: absolute; left: 5px; top: 10px; bottom: 10px; width: 2px; background: #e2e8f0; }
+        .timeline-item { position: relative; padding-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .timeline-item::after { content: ''; position: absolute; left: -18px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--primary-color); border: 2px solid white; }
+        .day-badge { background: #e2e8f0; color: #475569; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-bottom: 4px; display: inline-block; }
+        .time { font-size: 12px; font-weight: 700; color: var(--primary-color); }
+        .location { font-size: 14px; font-weight: 700; color: #0f172a; margin: 2px 0; }
+        .memo { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+
+        .diary-card { border-bottom: 1px solid #e2e8f0; padding: 15px 0; }
+        .diary-card:last-child { border-bottom: none; }
+        .diary-date { font-size: 13px; font-weight: 700; color: var(--primary-color); margin-bottom: 6px; }
+        .diary-img { width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px; margin: 8px 0; border: 1px solid #e2e8f0; }
+        .diary-text { font-size: 14px; line-height: 1.6; color: #334155; word-break: break-all; background: #f8fafc; padding: 10px; border-radius: 8px; }
+
         .hidden { display: none !important; }
-        .empty-msg { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 14px; }
+        .empty-msg { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 14px; width: 100%; }
+        .current-travel-title { font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 12px; background: #e0f2fe; padding: 10px 14px; border-radius: 10px; border: 1px solid #bae6fd; }
     </style>
 </head>
 <body>
@@ -66,289 +121,872 @@
     <div id="screen-main">
         <div class="section">
             <div class="section-title">🗺️ 나의 여행 리스트</div>
-            <div id="travel-list"></div>
+            <div id="travel-list-container"></div>
             
-            <div class="input-group" style="margin-top: 16px;">
-                <input type="text" id="input-travel-title" placeholder="새로운 여행지 입력 (예: 도쿄 여행, 부산 호캉스)">
-                <button class="btn-main" onclick="addTravel()">추가</button>
+            <div class="input-row" style="margin-top: 16px;">
+                <input type="text" id="main-travel-title" placeholder="새로운 여행지 입력 (예: 도쿄 여행, 부산 호캉스)">
+                <button class="btn-main" onclick="createNewTravel()">추가</button>
             </div>
         </div>
 
-        <button class="btn-diary-go" onclick="goToDiaryScreen()">
-            📝 선택한 여행 일기장 열기
-        </button>
+        <div class="section" style="background: #faf5ff; border: 1px solid #e9d5ff;">
+            <div class="section-title" style="color: #6b21b6;">📝 어떤 여행의 일기를 확인하시겠습니까?</div>
+            <div id="diary-shortcut-container"></div>
+        </div>
+
+        <div class="backup-zone">
+            <label style="font-size: 12px; font-weight: 800; color: var(--backup-color);">💾 시스템 데이터 백업 및 복구</label>
+            <div class="backup-btns">
+                <button class="btn-backup" onclick="exportDataBackup()">📥 백업본 추출</button>
+                <label class="btn-restore">
+                    📤 백업본 복구
+                    <input type="file" id="backup-file-input" class="file-input" accept=".json" onchange="importDataBackup(this)">
+                </label>
+                <button class="btn-del" onclick="forceResetApp()" style="background:#ef4444; color:white; font-weight:bold; flex: 0.8;">🚨 전체 강제 초기화</button>
+            </div>
+        </div>
     </div>
 
-    <div id="screen-diary" class="hidden">
-        <button class="btn-back" onclick="goToMainScreen()">⬅️ 메인으로</button>
+    <div id="screen-detail" class="hidden">
+        <button class="btn-back-main" onclick="backToMainScreen()">⬅️ 홈/메인으로 이동</button>
         
-        <div class="section">
-            <div class="section-title">📂 여행 선택</div>
-            <select id="select-travel-diary" onchange="changeDiaryTarget()"></select>
-        </div>
+        <div id="active-travel-indicator" class="current-travel-title">📍 여행 이름 정보 로딩 중...</div>
 
-        <div class="section">
-            <div class="section-title">✍️ 새로운 일기 쓰기</div>
-            <div class="input-group" style="flex-direction: column;">
-                <input type="date" id="input-diary-date" style="width: 100%;">
-                <textarea id="input-diary-text" rows="3" placeholder="오늘의 추억을 기록해보세요..."></textarea>
-                <button class="btn-main" onclick="addDiary()" style="width: 100%;">일기 저장하기</button>
+        <nav class="nav-bar">
+            <button class="nav-btn active" onclick="switchPage('page-budget', this)">💰 가계부</button>
+            <button class="nav-btn" onclick="switchPage('page-wishlist', this)">🛍️ 위시리스트</button>
+            <button class="nav-btn" onclick="switchPage('page-packing', this)">🧳 짐싸기</button>
+            <button class="nav-btn" onclick="switchPage('page-planner', this)">📍 일정 플래너</button>
+            <button class="nav-btn" onclick="switchPage('page-diary', this)">📖 일기장</button>
+        </nav>
+
+        <div id="page-budget" class="page-section active">
+            <div class="section">
+                <h2>💰 예산 계산기 및 가계부</h2>
+                <div class="category-tabs" id="expense-tabs-container">
+                    <button class="tab-btn active" onclick="switchExpenseTab('all', this)">🗓️ 모두보기</button>
+                    <button class="tab-btn" onclick="switchExpenseTab('KRW', this)">₩ 원화</button>
+                    <button class="tab-btn" onclick="switchExpenseTab('JPY', this)">¥ 엔화</button>
+                    <button class="tab-btn" onclick="switchExpenseTab('USD', this)">$ 달러</button>
+                </div>
+                
+                <div class="budget-summary">
+                    <div class="budget-box"><span>총 예산 설정 (KRW)</span><input type="number" id="total-budget" oninput="updateBudget()" style="width:100%; text-align:center; padding:4px; margin-top:4px;"></div>
+                    <div class="budget-box"><span>남은 예산 (KRW)</span><p id="remaining-amount" style="color: var(--primary-color); margin-top:6px;">0 원</p></div>
+                </div>
+                <div class="budget-summary" style="margin-top:-10px; margin-bottom:16px;">
+                    <div class="budget-box" style="grid-column: span 2;"><span>총 사용 금액 (KRW)</span><p id="used-amount" style="color: var(--accent-color);">0 원</p></div>
+                </div>
+
+                <div class="input-row">
+                    <input type="date" id="expense-date">
+                    <select id="currency-select">
+                        <option value="KRW" selected>한국 원화 (₩)</option>
+                        <option value="JPY">일본 엔화 (¥)</option>
+                        <option value="USD">미국 달러 ($)</option>
+                        <option value="CNY">중국 위안화 (¥)</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <input type="text" id="expense-title" placeholder="내역을 입력하세요 (예: 맛집 식비, 교통비)">
+                    <input type="number" id="expense-cost" placeholder="금액 입력">
+                    <button class="btn-main" onclick="addExpense()">추역 추가</button>
+                </div>
+                <ul class="expense-list" id="expense-list"></ul>
             </div>
         </div>
 
-        <div class="section">
-            <div class="section-title">📅 기록된 일기 (날짜순)</div>
-            <div id="diary-list"></div>
+        <div id="page-wishlist" class="page-section">
+            <div class="section">
+                <h2>🛍️ 쇼핑 & 위시리스트 관리</h2>
+                <div class="category-tabs" id="wish-tabs-container">
+                    <button class="tab-btn active" onclick="switchWishTab('all', this)">🛍️ 모두보기</button>
+                    <button class="tab-btn" onclick="switchWishTab('destination', this)">🗺️ 여행지</button>
+                    <button class="tab-btn" onclick="switchWishTab('goods', this)">🎯 굿즈</button>
+                    <button class="tab-btn" onclick="switchWishTab('clothes', this)">👚 의류</button>
+                    <button class="tab-btn" onclick="switchWishTab('gift', this)">🎁 선물/기념품</button>
+                    <button class="tab-btn" onclick="switchWishTab('etc', this)">기타</button>
+                </div>
+                <div class="input-row">
+                    <select id="wish-cat-select">
+                        <option value="destination">🗺️ 여행지</option>
+                        <option value="goods" selected>🎯 굿즈</option>
+                        <option value="clothes">👚 옷/의류</option>
+                        <option value="gift">🎁 선물/기념품</option>
+                        <option value="etc">기타</option>
+                    </select>
+                    <input type="text" id="wish-title" placeholder="아이템 또는 목표 장소 이름">
+                    <input type="text" id="wish-cost" placeholder="예상 가격">
+                </div>
+                <div class="input-row">
+                    <input type="text" id="wish-url" placeholder="웹사이트 링크 주소 (선택)">
+                    <input type="text" id="wish-memo" placeholder="상세 정보 및 메모">
+                    <button class="btn-main" onclick="addWishItem()">위시 추가</button>
+                </div>
+                <ul class="expense-list" id="wish-list"></ul>
+            </div>
+        </div>
+
+        <div id="page-packing" class="page-section">
+            <div class="section">
+                <h2>🧳 짐싸기 체크리스트</h2>
+                <div class="category-tabs" id="pack-tabs-container">
+                    <button class="tab-btn active" onclick="switchPackTab('all', this)">🧳 모두보기</button>
+                    <button class="tab-btn" onclick="switchPackTab('essential', this)">필수품</button>
+                    <button class="tab-btn" onclick="switchPackTab('clothing', this)">의류/세면</button>
+                    <button class="tab-btn" onclick="switchPackTab('etc', this)">기타</button>
+                </div>
+                <div class="input-row">
+                    <select id="pack-cat-select">
+                        <option value="essential">🚨 필수품</option>
+                        <option value="clothing">👚 의류/세면</option>
+                        <option value="etc" selected>기타 소지품</option>
+                    </select>
+                    <input type="text" id="pack-text" placeholder="준비할 물품 명칭">
+                    <button class="btn-main" onclick="addPackItem()">소지품 추가</button>
+                </div>
+                <div id="packing-list-container"></div>
+            </div>
+        </div>
+
+        <div id="page-planner" class="page-section">
+            <div class="section">
+                <h2>📍 타임라인 일정 매니저</h2>
+                <div class="category-tabs" id="day-tabs-container">
+                    <button class="tab-btn active" onclick="switchDayTab('day1', this)">1일차</button>
+                    <button class="tab-btn" onclick="switchDayTab('day2', this)">2일차</button>
+                    <button class="tab-btn" onclick="switchDayTab('day3', this)">3일차</button>
+                    <button class="tab-btn" onclick="switchDayTab('day4', this)">4일차</button>
+                </div>
+                <div class="input-row">
+                    <input type="time" id="plan-time" value="10:00">
+                    <input type="text" id="plan-location" placeholder="장소명 또는 일정 제목">
+                </div>
+                <div class="input-row">
+                    <input type="text" id="plan-memo" placeholder="일정 메모 사항 명시">
+                    <input type="text" id="plan-url" placeholder="참조 링크 URL (선택)">
+                    <button class="btn-main" onclick="addTimelineItem()">일정 추가</button>
+                </div>
+                <div class="timeline" id="timeline-container"></div>
+            </div>
+        </div>
+
+        <div id="page-diary" class="page-section">
+            <div class="section">
+                <h2>📖 여행 사진 기록 일기장</h2>
+                <div class="input-row" style="flex-direction: column;">
+                    <input type="date" id="diary-date" style="width:100%;">
+                    <div style="display: flex; gap:8px; width:100%; align-items:center;">
+                        <label class="file-label">📸 사진 업로드 하기
+                            <input type="file" id="diary-file-input" class="file-input" accept="image/*">
+                        </label>
+                        <span id="diary-file-name" style="font-size:12px; color:#64748b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">선택된 파일 없음</span>
+                    </div>
+                    <textarea id="diary-text" placeholder="오늘의 특별한 추억과 감상을 일기로 남겨보세요..."></textarea>
+                    <button class="btn-main" onclick="addDiaryItem()" style="width:100%;">일기 저장하기</button>
+                </div>
+                <div id="diary-list-container" style="margin-top:20px;"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // 데이터 구조 초기화 및 로드
+        // 전역 고정 환율 설정값
+        const exchangeRates = { JPY: 9.0, USD: 1370, CNY: 190 };
+        
+        // 데이터 필터 상태 변수들
+        let currentExpenseTab = 'all';
+        let currentPackTab = 'all';
+        let currentDayTab = 'day1';
+        let currentWishTab = 'all';
+        
+        // 통합 데이터 메모리 구조체 초기화
         let appData = {
             travels: [],
             activeTravelId: null
         };
 
-        function loadData() {
-            const saved = localStorage.getItem('smart_travel_archive');
+        // 기본 제공 짐싸기 목록 프리셋 정의
+        const defaultPackList = [
+            { id: 1001, category: 'essential', text: '여권 및 비자 서류(사본 포함)', done: false },
+            { id: 1002, category: 'essential', text: '환전 현금 및 해외 마스터/비자 카드', done: false },
+            { id: 1003, category: 'essential', text: '스마트폰 충전기 및 고속 보조배터리', done: false },
+            { id: 1004, category: 'essential', text: '비상 상비약 세트 (감기, 소화제, 대역)', done: false },
+            { id: 1005, category: 'essential', text: '포켓 와이파이 / 도시락 혹은 로밍 eSIM', done: false },
+            { id: 1006, category: 'clothing', text: '계절 여벌 옷 및 속옷 / 여분 양말', done: false },
+            { id: 1007, category: 'clothing', text: '개인 세면도구 및 스킨케어 / 선크림', done: false }
+        ];
+
+        // 초기 시스템 로드 엔진
+        window.onload = function() {
+            loadAllData();
+            renderMainDashboard();
+            setTodayDateFields();
+            
+            // 파일 업로드 시 파일명 라벨 동기화 이벤트 바인딩
+            document.getElementById('diary-file-input').onchange = function() {
+                if(this.files.length > 0) {
+                    document.getElementById('diary-file-name').innerText = this.files[0].name;
+                }
+            };
+        };
+
+        function setTodayDateFields() {
+            const todayStr = new Date().toISOString().substring(0, 10);
+            document.getElementById('expense-date').value = todayStr;
+            document.getElementById('diary-date').value = todayStr;
+        }
+
+        // 로컬 스토리지 데이터 관리 유틸리티
+        function loadAllData() {
+            const saved = localStorage.getItem('smart_travel_archive_v5');
             if (saved) {
                 try {
                     appData = JSON.parse(saved);
                 } catch(e) {
-                    initDefaultData();
+                    initDefaultMockData();
                 }
             } else {
-                initDefaultData();
+                initDefaultMockData();
             }
         }
 
-        function initDefaultData() {
+        function initDefaultMockData() {
             appData = {
                 travels: [
-                    { id: 1710000000000, title: "💡 예시) 첫 번째 여행", diaries: [
-                        { id: 1, date: "2026-05-28", text: "여기에 여행 일기가 기록됩니다! 수정과 삭제를 테스트해보세요." }
-                    ]}
+                    {
+                        id: 1710000000000,
+                        title: "💡 예시) 첫 번째 여행 가이드",
+                        totalBudget: 1200000,
+                        expenses: [
+                            { id: 1, date: "2026-05-28", currency: "KRW", title: "공항 버스 운임비", inputCost: 15000, costInKrw: 15000 }
+                        ],
+                        wishItems: [
+                            { id: 1, category: "goods", title: "애니메이션 한정 피규어", cost: "3500엔", url: "", memo: "북오프 매장 탐방" }
+                        ],
+                        packItems: [...defaultPackList],
+                        targetSchedule: { day1: [], day2: [], day3: [], day4: [] },
+                        diaries: [
+                            { id: 1, date: "2026-05-28", text: "성공적으로 아카이브 앱이 구동되었습니다! 수정 및 테스트를 진행해 보세요.", img: "" }
+                        ]
+                    }
                 ],
-                activeTravelId: 1710000000000
+                activeTravelId: null
             };
-            saveData();
+            saveAllData();
         }
 
-        function saveData() {
-            localStorage.setItem('smart_travel_archive', JSON.stringify(appData));
+        function saveAllData() {
+            localStorage.setItem('smart_travel_archive_v5', JSON.stringify(appData));
         }
 
-        // 현재 활성화된 여행 오브젝트 가져오기
-        function getActiveTravel() {
+        function getActive() {
             return appData.travels.find(t => t.id === appData.activeTravelId) || appData.travels[0];
         }
 
-        // 메인 화면 렌더링
-        function renderMainScreen() {
-            const container = document.getElementById('travel-list');
-            container.innerHTML = '';
+        // --- 메인 화면 렌더러 기능 세트 ---
+        function renderMainDashboard() {
+            const listContainer = document.getElementById('travel-list-container');
+            const diaryShortcutContainer = document.getElementById('diary-shortcut-container');
+            
+            listContainer.innerHTML = '';
+            diaryShortcutContainer.innerHTML = '';
 
-            if (appData.travels.length === 0) {
-                container.innerHTML = '<div class="empty-msg">등록된 여행이 없습니다. 여행지를 추가해주세요!</div>';
+            if(appData.travels.length === 0) {
+                listContainer.innerHTML = '<div class="empty-msg">등록된 여행지가 없습니다. 위에 새 여행지를 추가하세요!</div>';
+                diaryShortcutContainer.innerHTML = '<div class="empty-msg">등록된 여행지가 없어 일기장 리스트를 가져올 수 없습니다.</div>';
                 return;
             }
 
             appData.travels.forEach(travel => {
-                const div = document.createElement('div');
-                div.className = `travel-item ${travel.id === appData.activeTravelId ? 'active' : ''}`;
-                div.onclick = () => selectTravel(travel.id);
-                
-                div.innerHTML = `
+                // 1. 여행 리스트 아이템 렌더링
+                const tDiv = document.createElement('div');
+                tDiv.className = 'travel-item';
+                tDiv.onclick = () => selectAndOpenTravel(travel.id, 'page-budget');
+                tDiv.innerHTML = `
                     <span>📍 ${travel.title}</span>
-                    <button class="btn-delete-travel" onclick="deleteTravel(event, ${travel.id})">삭제</button>
+                    <button class="btn-delete-travel" onclick="deleteTravelFolder(event, ${travel.id})">삭제</button>
                 `;
-                container.appendChild(div);
+                listContainer.appendChild(tDiv);
+
+                // 2. 일기 바로가기 바로가기용 리스트 아이템 렌더링
+                const dDiv = document.createElement('div');
+                dDiv.className = 'diary-go-item';
+                dDiv.onclick = () => selectAndOpenTravel(travel.id, 'page-diary');
+                dDiv.innerHTML = `📖 <strong>${travel.title}</strong> 일기장 전용 열기 & 확인하기`;
+                diaryShortcutContainer.appendChild(dDiv);
             });
         }
 
-        // 여행지 선택 함수
-        function selectTravel(id) {
-            appData.activeTravelId = id;
-            saveData();
-            renderMainScreen();
-        }
-
-        // 여행지 추가 함수
-        function addTravel() {
-            const input = document.getElementById('input-travel-title');
+        // 새 여행 폴더 생성
+        function createNewTravel() {
+            const input = document.getElementById('main-travel-title');
             const title = input.value.trim();
-            if (!title) return alert('여행지 이름을 입력해주세요.');
+            if(!title) return alert('여행지 타이틀을 입력해주세요!');
 
-            const newTravel = {
+            const newObj = {
                 id: Date.now(),
                 title: title,
+                totalBudget: 1000000,
+                expenses: [],
+                wishItems: [],
+                packItems: JSON.parse(JSON.stringify(defaultPackList)),
+                targetSchedule: { day1: [], day2: [], day3: [], day4: [] },
                 diaries: []
             };
 
-            appData.travels.push(newTravel);
-            appData.activeTravelId = newTravel.id; // 새로 만든 여행을 바로 선택
+            appData.travels.push(newObj);
             input.value = '';
-            saveData();
-            renderMainScreen();
+            saveAllData();
+            renderMainDashboard();
         }
 
-        // 여행지 삭제 함수
-        function deleteTravel(event, id) {
-            event.stopPropagation(); // 부모 클릭 이벤트 방지
-            if (confirm('이 여행지와 해당 여행의 모든 일기가 영구 삭제됩니다. 정말 삭제하시겠습니까?')) {
+        // [확인창 적용] 여행 폴더 전체 삭제 기능
+        function deleteTravelFolder(event, id) {
+            event.stopPropagation(); // 부모 항목 선택 트리거 전파 차단
+            if(confirm("🚨 이 여행지와 관련된 모든 데이터(가계부, 위시리스트, 짐싸기, 일정, 일기)가 완벽히 영구 삭제됩니다. 정말 삭제하시겠습니까?")) {
                 appData.travels = appData.travels.filter(t => t.id !== id);
-                if (appData.activeTravelId === id && appData.travels.length > 0) {
-                    appData.activeTravelId = appData.travels[0].id;
-                } else if (appData.travels.length === 0) {
-                    appData.activeTravelId = null;
-                }
-                saveData();
-                renderMainScreen();
+                if(appData.activeTravelId === id) appData.activeTravelId = null;
+                saveAllData();
+                renderMainDashboard();
             }
         }
 
-        // 일기 화면 전송 및 셀렉트 박스 동기화
-        function goToDiaryScreen() {
-            if (!appData.activeTravelId) {
-                alert('선택되거나 등록된 여행지가 없습니다. 먼저 여행지를 추가해주세요.');
-                return;
-            }
+        // 여행지 클릭 시 상세 대시보드로 진입 전환 오케스트레이터
+        function selectAndOpenTravel(id, targetPageId) {
+            appData.activeTravelId = id;
+            saveAllData();
+
             document.getElementById('screen-main').classList.add('hidden');
-            document.getElementById('screen-diary').classList.remove('hidden');
+            document.getElementById('screen-detail').classList.remove('hidden');
 
-            // 오늘 날짜 기본 세팅
-            document.getElementById('input-diary-date').value = new Date().toISOString().substring(0, 10);
+            const current = getActive();
+            document.getElementById('active-travel-indicator').innerText = `📍 현재 편집 폴더: ${current.title}`;
+            document.getElementById('total-budget').value = current.totalBudget || 0;
 
-            renderDiarySelectOptions();
+            // 특정 타겟 탭 자동 활성화 처리
+            const targetBtn = Array.from(document.querySelectorAll('.nav-bar .nav-btn')).find(btn => btn.getAttribute('onclick').includes(targetPageId));
+            switchPage(targetPageId, targetBtn);
+
+            // 전체 하위 컴포넌트 강제 리렌더링 동기화
+            updateBudget();
+            renderExpenseList();
+            renderWishList();
+            renderPackingList();
+            renderTimeline();
             renderDiaries();
         }
 
-        function goToMainScreen() {
-            document.getElementById('screen-diary').classList.add('hidden');
+        function backToMainScreen() {
+            document.getElementById('screen-detail').classList.add('hidden');
             document.getElementById('screen-main').classList.remove('hidden');
-            renderMainScreen();
+            renderMainDashboard();
         }
 
-        // 일기 화면 내 여행 선택 드롭다운 설정
-        function renderDiarySelectOptions() {
-            const select = document.getElementById('select-travel-diary');
-            select.innerHTML = '';
-            appData.travels.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t.id;
-                opt.textContent = `📍 ${t.title}`;
-                if (t.id === appData.activeTravelId) opt.selected = true;
-                select.appendChild(opt);
+        // 네비게이션 탭 스위처
+        function switchPage(pageId, btnElement) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
+        }
+
+        // --- 1. 가계부 시스템 연동 엔진 ---
+        function switchExpenseTab(target, btnElement) {
+            document.querySelectorAll('#expense-tabs-container .tab-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            currentExpenseTab = target;
+            renderExpenseList();
+        }
+
+        function updateBudget() {
+            const p = getActive();
+            p.totalBudget = parseFloat(document.getElementById('total-budget').value) || 0;
+            let sum = p.expenses.reduce((s, item) => s + item.costInKrw, 0);
+            
+            document.getElementById('used-amount').innerText = sum.toLocaleString() + ' 원';
+            document.getElementById('remaining-amount').innerText = (p.totalBudget - sum).toLocaleString() + ' 원';
+            saveAllData();
+        }
+
+        function addExpense() {
+            const p = getActive();
+            const date = document.getElementById('expense-date').value;
+            const currency = document.getElementById('currency-select').value;
+            const title = document.getElementById('expense-title').value.trim();
+            const inputCost = parseFloat(document.getElementById('expense-cost').value);
+
+            if(!title || isNaN(inputCost)) return alert('내역과 올바른 금액을 기입해 주세요.');
+
+            let costInKrw = Math.round(currency === 'JPY' ? (inputCost/100)*exchangeRates.JPY : currency === 'USD' ? inputCost*exchangeRates.USD : currency === 'CNY' ? inputCost*exchangeRates.CNY : inputCost);
+
+            p.expenses.push({ id: Date.now(), date, currency, title, inputCost, costInKrw });
+            document.getElementById('expense-title').value = '';
+            document.getElementById('expense-cost').value = '';
+            
+            updateBudget();
+            renderExpenseList();
+        }
+
+        function renderExpenseList() {
+            const p = getActive();
+            const container = document.getElementById('expense-list');
+            container.innerHTML = '';
+
+            const filtered = p.expenses.filter(e => currentExpenseTab === 'all' || e.currency === currentExpenseTab);
+            // 과거 등록된 순으로 정렬 배치
+            const sorted = filtered.sort((a,b) => a.id - b.id);
+
+            if(sorted.length === 0) {
+                container.innerHTML = '<div class="empty-msg">내역이 존재하지 않습니다. 새로운 가계 내역을 등록하세요.</div>';
+                return;
+            }
+
+            sorted.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'expense-item';
+                let sign = item.currency === 'JPY' ? '¥' : item.currency === 'USD' ? '$' : item.currency === 'CNY' ? '¥' : '₩';
+                
+                li.innerHTML = `
+                    <div class="expense-left">
+                        <div class="expense-info" id="ex-display-${item.id}">
+                            <span class="expense-date">📅 ${item.date}</span>
+                            <span style="font-weight:700;">${item.title}</span>
+                            <span class="currency-detail">금액: ${sign}${item.inputCost.toLocaleString()} (${item.costInKrw.toLocaleString()}원 환산)</span>
+                        </div>
+                    </div>
+                    <div class="action-btns" id="ex-btns-${item.id}">
+                        <button class="btn-edit" onclick="showEditExpenseForm(${item.id})">수정</button>
+                        <button class="btn-del" onclick="deleteExpenseItem(${item.id})">삭제</button>
+                    </div>
+                `;
+                container.appendChild(li);
             });
         }
 
-        function changeDiaryTarget() {
-            const select = document.getElementById('select-travel-diary');
-            appData.activeTravelId = Number(select.value);
-            saveData();
-            renderDiaries();
+        function showEditExpenseForm(id) {
+            const p = getActive();
+            const item = p.expenses.find(ex => ex.id === id);
+            document.getElementById(`ex-display-${id}`).innerHTML = `
+                <div class="edit-mode-box">
+                    <input type="text" id="edit-ex-title-${id}" value="${item.title}">
+                    <input type="number" id="edit-ex-cost-${id}" value="${item.inputCost}">
+                    <input type="date" id="edit-ex-date-${id}" value="${item.date}">
+                </div>
+            `;
+            document.getElementById(`ex-btns-${id}`).innerHTML = `
+                <button class="btn-main" onclick="saveEditedExpense(${id})" style="padding:6px 10px; font-size:12px;">저장</button>
+                <button class="btn-sort" onclick="renderExpenseList()" style="padding:6px 10px; font-size:12px;">취소</button>
+            `;
         }
 
-        // 일기 목록 렌더링 (날짜 오름차순/순서대로 정렬)
-        function renderDiaries() {
-            const container = document.getElementById('diary-list');
-            container.innerHTML = '';
+        function saveEditedExpense(id) {
+            const p = getActive();
+            const item = p.expenses.find(ex => ex.id === id);
+            const t = document.getElementById(`edit-ex-title-${id}`).value.trim();
+            const c = parseFloat(document.getElementById(`edit-ex-cost-${id}`).value);
+            const d = document.getElementById(`edit-ex-date-${id}`).value;
+
+            if(!t || isNaN(c)) return alert('내용과 숫자를 똑바로 기입해 주세요.');
+
+            item.title = t;
+            item.inputCost = c;
+            item.date = d;
+            item.costInKrw = Math.round(item.currency === 'JPY' ? (c/100)*exchangeRates.JPY : item.currency === 'USD' ? c*exchangeRates.USD : item.currency === 'CNY' ? c*exchangeRates.CNY : c);
             
-            const currentTravel = getActiveTravel();
-            if (!currentTravel) return;
+            updateBudget();
+            renderExpenseList();
+        }
 
-            // 날짜 순서대로 정렬 (오래된 순 -> 최신 순 정렬: localeCompare)
-            // 만약 최신순을 원하시면 b.date.localeCompare(a.date)로 변경 가능합니다.
-            const sortedDiaries = [...currentTravel.diaries].sort((a, b) => a.date.localeCompare(b.date));
+        // [확인창 적용] 가계부 삭제
+        function deleteExpenseItem(id) {
+            if(confirm("이 가계부 소비 내역을 삭제하시겠습니까?")) {
+                const p = getActive();
+                p.expenses = p.expenses.filter(e => e.id !== id);
+                updateBudget();
+                renderExpenseList();
+            }
+        }
 
-            if (sortedDiaries.length === 0) {
-                container.innerHTML = '<div class="empty-msg">아직 기록된 일기가 없습니다. 첫 추억을 남겨보세요!</div>';
+
+        // --- 2. 쇼핑 위시리스트 연동 엔진 ---
+        function switchWishTab(target, btnElement) {
+            document.querySelectorAll('#wish-tabs-container .tab-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            currentWishTab = target;
+            renderWishList();
+        }
+
+        function addWishItem() {
+            const p = getActive();
+            const category = document.getElementById('wish-cat-select').value;
+            const title = document.getElementById('wish-title').value.trim();
+            const cost = document.getElementById('wish-cost').value.trim();
+            const url = document.getElementById('wish-url').value.trim();
+            const memo = document.getElementById('wish-memo').value.trim();
+
+            if(!title) return alert('아이템 장소 명칭을 기입해 주세요.');
+
+            p.wishItems.push({
+                id: Date.now(), category, title, cost: cost || '가격 미정', url, memo: memo || '상세 메모 없음'
+            });
+
+            document.getElementById('wish-title').value = '';
+            document.getElementById('wish-cost').value = '';
+            document.getElementById('wish-url').value = '';
+            document.getElementById('wish-memo').value = '';
+
+            saveAllData();
+            renderWishList();
+        }
+
+        function renderWishList() {
+            const p = getActive();
+            const container = document.getElementById('wish-list');
+            container.innerHTML = '';
+
+            const filtered = p.wishItems.filter(w => currentWishTab === 'all' || w.category === currentWishTab);
+
+            if(filtered.length === 0) {
+                container.innerHTML = '<div class="empty-msg">보관된 쇼핑 위시 아이템이 없습니다.</div>';
                 return;
             }
 
-            sortedDiaries.forEach(diary => {
-                const div = document.createElement('div');
-                div.className = 'diary-item';
-                div.innerHTML = `
-                    <div class="diary-header">
-                        <div class="diary-date">📅 ${diary.date}</div>
-                        <div class="diary-actions">
-                            <button class="btn-edit" onclick="showEditDiaryForm(${diary.id})">수정</button>
-                            <button class="btn-del" onclick="deleteDiary(${diary.id})">삭제</button>
+            filtered.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'expense-item';
+                let catBadgeText = item.category === 'destination' ? '🗺️ 여행지' : item.category === 'goods' ? '🎯 굿즈' : item.category === 'clothes' ? '👚 의류' : item.category === 'gift' ? '🎁 선물' : '기타';
+                let linkTag = item.url ? `<a href="${item.url.startsWith('http') ? item.url : 'https://'+item.url}" target="_blank" class="link-url">🔗 상품정보 링크 바로가기</a>` : '';
+
+                li.innerHTML = `
+                    <div class="expense-left">
+                        <div class="expense-info" id="wish-display-${item.id}">
+                            <div><span class="wish-badge">${catBadgeText}</span></div>
+                            <span style="font-weight:700; font-size:14px;">${item.title}</span>
+                            <span style="font-size:12px; color:var(--wish-color); font-weight:600;">예상가: ${item.cost}</span>
+                            <span style="font-size:11px; color:#64748b;">📝 메모: ${item.memo}</span>
+                            ${linkTag}
                         </div>
                     </div>
-                    <div class="diary-text" id="diary-text-box-${diary.id}">${diary.text}</div>
+                    <div class="action-btns" id="wish-btns-${item.id}">
+                        <button class="btn-edit" onclick="showEditWishForm(${item.id})">수정</button>
+                        <button class="btn-del" onclick="deleteWishItem(${item.id})">삭제</button>
+                    </div>
+                `;
+                container.appendChild(li);
+            });
+        }
+
+        function showEditWishForm(id) {
+            const p = getActive();
+            const item = p.wishItems.find(w => w.id === id);
+            document.getElementById(`wish-display-${id}`).innerHTML = `
+                <div class="edit-mode-box">
+                    <input type="text" id="edit-wish-title-${id}" value="${item.title}">
+                    <input type="text" id="edit-wish-cost-${id}" value="${item.cost}">
+                    <input type="text" id="edit-wish-memo-${id}" value="${item.memo}">
+                </div>
+            `;
+            document.getElementById(`wish-btns-${id}`).innerHTML = `
+                <button class="btn-main" onclick="saveEditedWish(${id})" style="padding:6px 10px; font-size:12px;">저장</button>
+                <button class="btn-sort" onclick="renderWishList()" style="padding:6px 10px; font-size:12px;">취소</button>
+            `;
+        }
+
+        function saveEditedWish(id) {
+            const p = getActive();
+            const item = p.wishItems.find(w => w.id === id);
+            item.title = document.getElementById(`edit-wish-title-${id}`).value.trim();
+            item.cost = document.getElementById(`edit-wish-cost-${id}`).value.trim();
+            item.memo = document.getElementById(`edit-wish-memo-${id}`).value.trim();
+
+            saveAllData();
+            renderWishList();
+        }
+
+        // [확인창 적용] 위시리스트 아이템 삭제
+        function deleteWishItem(id) {
+            if(confirm("이 위시리스트 쇼핑 항목을 삭제하시겠습니까?")) {
+                const p = getActive();
+                p.wishItems = p.wishItems.filter(w => w.id !== id);
+                saveAllData();
+                renderWishList();
+            }
+        }
+
+
+        // --- 3. 짐싸기 체크리스트 연동 엔진 ---
+        function switchPackTab(target, btnElement) {
+            document.querySelectorAll('#pack-tabs-container .tab-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            currentPackTab = target;
+            renderPackingList();
+        }
+
+        function addPackItem() {
+            const p = getActive();
+            const category = document.getElementById('pack-cat-select').value;
+            const text = document.getElementById('pack-text').value.trim();
+
+            if(!text) return alert('준비할 소지품 내용을 입력해 주세요.');
+
+            p.packItems.push({ id: Date.now(), category, text, done: false });
+            document.getElementById('pack-text').value = '';
+            
+            saveAllData();
+            renderPackingList();
+        }
+
+        function renderPackingList() {
+            const p = getActive();
+            const container = document.getElementById('packing-list-container');
+            container.innerHTML = '';
+
+            const filtered = p.packItems.filter(i => currentPackTab === 'all' || i.category === currentPackTab);
+
+            if(filtered.length === 0) {
+                container.innerHTML = '<div class="empty-msg">체크리스트 소지품이 존재하지 않습니다.</div>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'check-item';
+                let labelPrefix = item.category === 'essential' ? '필수' : item.category === 'clothing' ? '의류' : '기타';
+
+                div.innerHTML = `
+                    <label class="check-label ${item.done ? 'done' : ''}">
+                        <input type="checkbox" ${item.done ? 'checked' : ''} onclick="togglePackStatus(${item.id})">
+                        <span>[${labelPrefix}] ${item.text}</span>
+                    </label>
+                    <button class="btn-del" onclick="deletePackItem(${item.id})">삭제</button>
                 `;
                 container.appendChild(div);
             });
         }
 
-        // 일기 추가 함수
-        function addDiary() {
-            const dateInput = document.getElementById('input-diary-date');
-            const textInput = document.getElementById('input-diary-text');
+        function togglePackStatus(id) {
+            const p = getActive();
+            const item = p.packItems.find(i => i.id === id);
+            if(item) item.done = !item.done;
+            saveAllData();
+            renderPackingList();
+        }
+
+        // [확인창 적용] 짐싸기 체크리스트 아이템 삭제
+        function deletePackItem(id) {
+            if(confirm("이 짐싸기 체크 소지품 항목을 삭제하시겠습니까?")) {
+                const p = getActive();
+                p.packItems = p.packItems.filter(i => i.id !== id);
+                saveAllData();
+                renderPackingList();
+            }
+        }
+
+
+        // --- 4. 일정 플래너 연동 매니저 ---
+        function switchDayTab(target, btnElement) {
+            document.querySelectorAll('#day-tabs-container .tab-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            currentDayTab = target;
+            renderTimeline();
+        }
+
+        function addTimelineItem() {
+            const p = getActive();
+            const time = document.getElementById('plan-time').value;
+            const location = document.getElementById('plan-location').value.trim();
+            const memo = document.getElementById('plan-memo').value.trim();
+            const url = document.getElementById('plan-url').value.trim();
+
+            if(!location) return alert('장소 혹은 일정을 대표하는 제목을 적어주세요.');
+
+            if(!p.targetSchedule) p.targetSchedule = { day1:[], day2:[], day3:[], day4:[] };
+            if(!p.targetSchedule[currentDayTab]) p.targetSchedule[currentDayTab] = [];
+
+            p.targetSchedule[currentDayTab].push({ id: Date.now(), time, location, memo, url });
             
-            const date = dateInput.value;
-            const text = textInput.value.trim();
+            document.getElementById('plan-location').value = '';
+            document.getElementById('plan-memo').value = '';
+            document.getElementById('plan-url').value = '';
 
-            if (!date) return alert('날짜를 선택해주세요.');
-            if (!text) return alert('내용을 입력해주세요.');
+            saveAllData();
+            renderTimeline();
+        }
 
-            const currentTravel = getActiveTravel();
-            currentTravel.diaries.push({
-                id: Date.now(),
-                date: date,
-                text: text
+        function renderTimeline() {
+            const p = getActive();
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
+
+            if(!p.targetSchedule || !p.targetSchedule[currentDayTab] || p.targetSchedule[currentDayTab].length === 0) {
+                container.innerHTML = '<div class="empty-msg">해당 일차에 설정된 플래너 일정이 비어 있습니다.</div>';
+                return;
+            }
+
+            // 시간 순서대로 조밀하게 배치 정렬 수행
+            const sorted = [...p.targetSchedule[currentDayTab]].sort((a,b) => a.time.localeCompare(b.time));
+
+            sorted.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'timeline-item';
+                let linkCode = item.url ? `<br><a href="${item.url.startsWith('http') ? item.url : 'https://'+item.url}" target="_blank" class="link-url">🔗 연결된 일정 링크 보기</a>` : '';
+
+                div.innerHTML = `
+                    <div style="width: 80%;">
+                        <div class="time">⏱️ ${item.time}</div>
+                        <div class="location">${item.location}</div>
+                        <div class="memo">${item.memo}</div>
+                        ${linkCode}
+                    </div>
+                    <button class="btn-del" onclick="deleteTimelineItem('${currentDayTab}', ${index})">삭제</button>
+                `;
+                container.appendChild(div);
             });
+        }
 
-            textInput.value = '';
-            saveData();
+        // [확인창 적용] 플래너 일정 단일 삭제
+        function deleteTimelineItem(dayKey, index) {
+            if(confirm("선택하신 타임라인 일정을 스케줄에서 삭제하시겠습니까?")) {
+                const p = getActive();
+                p.targetSchedule[dayKey].splice(index, 1);
+                saveAllData();
+                renderTimeline();
+            }
+        }
+
+
+        // --- 5. 사진 업로드형 일기장 연동 엔진 ---
+        function addDiaryItem() {
+            const p = getActive();
+            const date = document.getElementById('diary-date').value;
+            const text = document.getElementById('diary-text').value.trim();
+            const fileInput = document.getElementById('diary-file-input');
+
+            if(!date || !text) return alert('날짜와 소중한 기록 내용을 모두 입력해 주세요.');
+
+            if(fileInput.files.length > 0) {
+                // 이미지 파일이 있는 경우 이미지 비동기 압축 후 데이터 바인딩 저장
+                const reader = new FileReader();
+                reader.readAsDataURL(fileInput.files[0]);
+                reader.onload = function(event) {
+                    const imgObj = new Image();
+                    imgObj.src = event.target.result;
+                    imgObj.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxW = 500; // 해상도 최적화 압축 한계폭
+                        const scale = maxW / imgObj.width;
+                        canvas.width = imgObj.width > maxW ? maxW : imgObj.width;
+                        canvas.height = imgObj.width > maxW ? imgObj.height * scale : imgObj.height;
+                        
+                        ctx.drawImage(imgObj, 0, 0, canvas.width, canvas.height);
+                        const base64Img = canvas.toDataURL('image/jpeg', 0.6); // 이미지 유실 방지 압축률 최적화
+
+                        executePushDiary(p, date, text, base64Img);
+                    }
+                }
+            } else {
+                executePushDiary(p, date, text, '');
+            }
+        }
+
+        function executePushDiary(p, date, text, base64Img) {
+            p.diaries.push({ id: Date.now(), date, text, img: base64Img });
+            
+            document.getElementById('diary-text').value = '';
+            document.getElementById('diary-file-input').value = '';
+            document.getElementById('diary-file-name').innerText = '선택된 파일 없음';
+
+            saveAllData();
             renderDiaries();
         }
 
-        // 일기 수정 폼 전환
-        function showEditDiaryForm(id) {
-            const currentTravel = getActiveTravel();
-            const diary = currentTravel.diaries.find(d => d.id === id);
-            const textBox = document.getElementById(`diary-text-box-${id}`);
+        function renderDiaries() {
+            const p = getActive();
+            const container = document.getElementById('diary-list-container');
+            container.innerHTML = '';
 
-            textBox.innerHTML = `
-                <textarea id="edit-textarea-${id}" rows="3" style="width:100%; margin-top:6px;">${diary.text}</textarea>
-                <div style="display:flex; gap:6px; margin-top:6px; justify-content: flex-end;">
-                    <button class="btn-main" onclick="saveEditedDiary(${id})" style="padding:6px 12px; font-size:12px;">저장</button>
-                    <button class="btn-back" onclick="renderDiaries()" style="padding:6px 12px; font-size:12px; margin:0;">취소</button>
-                </div>
-            `;
+            if(!p.diaries || p.diaries.length === 0) {
+                container.innerHTML = '<div class="empty-msg">기록된 추억 일기가 없습니다. 오늘 하루를 첫 페이지로 채워보세요!</div>';
+                return;
+            }
+
+            // 날짜 정렬 (오래된 순 -> 최신순 정렬 구조)
+            const sorted = [...p.diaries].sort((a,b) => a.date.localeCompare(b.date));
+
+            sorted.forEach(diary => {
+                const card = document.createElement('div');
+                card.className = 'diary-card';
+                let imgTag = diary.img ? `<img src="${diary.img}" class="diary-img">` : '';
+
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div class="diary-date">📅 기록 일자: ${diary.date}</div>
+                        <button class="btn-del" onclick="deleteDiaryItem(${diary.id})">삭제</button>
+                    </div>
+                    ${imgTag}
+                    <div class="diary-text" id="diary-text-view-${diary.id}">${diary.text.replace(/\n/g, '<br>')}</div>
+                `;
+                container.appendChild(card);
+            });
         }
 
-        // 일기 수정 완료 저장
-        function saveEditedDiary(id) {
-            const currentTravel = getActiveTravel();
-            const diary = currentTravel.diaries.find(d => d.id === id);
-            const newText = document.getElementById(`edit-textarea-${id}`).value.trim();
-
-            if (!newText) return alert('내용을 입력해주세요.');
-
-            diary.text = newText;
-            saveData();
-            renderDiaries();
-        }
-
-        // 일기 삭제 함수 (confirm 창으로 말리는 기능 포함)
-        function deleteDiary(id) {
-            if (confirm('이 일기를 정말 삭제할까요?')) {
-                const currentTravel = getActiveTravel();
-                currentTravel.diaries = currentTravel.diaries.filter(d => d.id !== id);
-                saveData();
+        // [확인창 적용] 개별 일기장 글 삭제
+        function deleteDiaryItem(id) {
+            if(confirm("⚠️ 작성한 일기가 영구히 소멸됩니다. 정말로 삭제 처리하시겠습니까?")) {
+                const p = getActive();
+                p.diaries = p.diaries.filter(d => d.id !== id);
+                saveAllData();
                 renderDiaries();
             }
         }
 
-        // 최초 실행시 초기화
-        window.onload = function() {
-            loadData();
-            renderMainScreen();
-        };
+
+        // --- 외부 데이터 백업 마이그레이션 백업 유틸리티 ---
+        function exportDataBackup() {
+            try {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+                const anchor = document.createElement('a');
+                anchor.setAttribute("href", dataStr);
+                anchor.setAttribute("download", `travel_archive_backup_${new Date().toISOString().substring(0,10)}.json`);
+                document.body.appendChild(anchor);
+                anchor.click();
+                anchor.remove();
+            } catch(e) {
+                alert('데이터 추출 중 예기치 못한 에러가 발생했습니다.');
+            }
+        }
+
+        function importDataBackup(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.readAsText(input.files[0], "UTF-8");
+                reader.onload = function (evt) {
+                    try {
+                        const parsed = JSON.parse(evt.target.result);
+                        if (parsed.travels) {
+                            appData = parsed;
+                            saveAllData();
+                            alert('🎉 시스템 백업본 데이터가 안전하게 복원되었습니다!');
+                            location.reload();
+                        } else {
+                            alert('유효하지 않은 백업 규격 아카이브 파일입니다.');
+                        }
+                    } catch (e) {
+                        alert('파일 리딩 가공 에러가 발생했습니다.');
+                    }
+                }
+            }
+        }
+
+        function forceResetApp() {
+            if(confirm("🚨 경고: 정말 모든 여행 폴더와 생성한 가계부, 위시리스트, 사진 일기장 정보가 완벽히 소멸됩니다. 강제 포맷 및 리셋할까요?")) {
+                localStorage.removeItem('smart_travel_archive_v5');
+                location.reload();
+            }
+        }
     </script>
 </body>
 </html>
