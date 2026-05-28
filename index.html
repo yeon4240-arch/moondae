@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>스마트 트래블 아카이브 ✈️</title>
     <style>
         :root {
@@ -19,9 +19,18 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); padding: 16px; padding-bottom: 60px; }
-        header { text-align: center; padding: 15px 0; }
+        header { text-align: center; padding: 15px 0 10px 0; }
         header h1 { font-size: 24px; font-weight: 800; color: #0f172a; }
         
+        /* 네비게이션 바 스타일 */
+        .nav-bar { display: flex; background: white; padding: 6px; border-radius: 14px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05); margin-bottom: 20px; overflow-x: auto; gap: 4px; position: sticky; top: 0; z-index: 1000; border: 1px solid #e2e8f0; }
+        .nav-btn { flex: 1; padding: 10px 8px; border: none; background: transparent; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; border-radius: 10px; white-space: nowrap; text-align: center; transition: all 0.2s; }
+        .nav-btn.active { background: var(--primary-color); color: white; box-shadow: 0 4px 8px rgba(42, 111, 219, 0.2); }
+
+        /* 페이지 섹션 제어 */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
         .section { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04); border: 1px solid #f1f5f9; }
         .section h2 { font-size: 17px; font-weight: 700; margin-bottom: 16px; color: #0f172a; }
 
@@ -32,17 +41,17 @@
 
         .travel-selector { background: #e2e8f0; padding: 12px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
         
-        .category-tabs { display: flex; gap: 6px; margin-bottom: 16px; background: var(--secondary-color); padding: 4px; border-radius: 10px; overflow-x: auto; align-items: center; flex-wrap: nowrap; }
-        .tab-btn { padding: 8px 12px; border: none; background: transparent; color: #64748b; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .category-tabs { display: flex; gap: 6px; margin-bottom: 16px; background: var(--secondary-color); padding: 4px; border-radius: 10px; overflow-x: auto; align-items: center; }
+        .tab-btn { padding: 8px 12px; border: none; background: transparent; color: #64748b; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; white-space: nowrap; }
         .tab-btn.active { background: white; color: var(--primary-color); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-        .btn-add-tab { background: #e2e8f0; color: #475569; border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .btn-add-tab { background: #e2e8f0; color: #475569; border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap; margin-left: auto; }
 
         .input-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-        input, select, button, textarea { padding: 11px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; }
+        input, select, button, textarea { padding: 11px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; -webkit-appearance: none; }
         input[type="text"], input[type="number"], input[type="time"], input[type="date"], select, textarea { flex: 1; min-width: 120px; }
-        textarea { resize: none; height: 70px; }
+        textarea { resize: none; height: 75px; }
         
-        .file-label { padding: 6px 10px; background: #edf2f7; border-radius: 6px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed #cbd5e1; color: #4a5568; white-space: nowrap; }
+        .file-label { padding: 6px 10px; background: #edf2f7; border-radius: 6px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed #cbd5e1; color: #4a5568; }
         .file-input { display: none; }
 
         .btn-main { background: var(--primary-color); color: white; border: none; font-weight: 600; cursor: pointer; }
@@ -50,28 +59,37 @@
         .btn-edit { background: #fef9c3; color: #a16207; border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
         .btn-sort { background: #f1f5f9; color: #475569; border: none; padding: 6px 8px; border-radius: 6px; font-size: 12px; }
 
-        .attached-img { width: 55px; height: 55px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; margin-right: 10px; cursor: pointer; }
+        .exchange-status { font-size: 12px; color: #64748b; margin-bottom: 12px; background: #f1f5f9; padding: 8px; border-radius: 8px; text-align: center; }
+        .attached-img { width: 55px; height: 55px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; margin-right: 10px; }
         .budget-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
         .budget-box { background: var(--secondary-color); padding: 12px; border-radius: 12px; text-align: center; }
         .budget-box span { font-size: 12px; color: #64748b; }
         .budget-box p { font-size: 16px; font-weight: 700; margin-top: 4px; }
         
         .expense-list { list-style: none; border-top: 1px dashed #e2e8f0; padding-top: 8px; }
-        .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; border-bottom: 1px solid #f1f5f9; }
+        .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; border-bottom: 1px solid #f1f5f9; background: white; }
+        
+        /* 위시리스트 드래그 전용 스타일 */
+        .expense-item.draggable { cursor: grab; user-select: none; border: 1px solid #f1f5f9; padding: 12px 8px; border-radius: 8px; margin-bottom: 4px; }
+        .expense-item.draggable:active { cursor: grabbing; background: #fafafa; }
+
         .expense-left { display: flex; align-items: center; width: 75%; }
         .expense-info { display: flex; flex-direction: column; width: 100%; }
         .expense-date { font-size: 11px; color: #94a3b8; }
         .currency-detail { font-size: 11px; color: #64748b; margin-top: 2px; }
-        .action-btns { display: flex; gap: 4px; flex-shrink: 0; }
+        .action-btns { display: flex; gap: 4px; }
 
-        /* 위시리스트 카테고리 뱃지 - 동적 색상 */
-        .wish-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: bold; width: max-content; margin-bottom: 3px; }
+        .wish-badge { background: #d1fae5; color: #065f46; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; width: max-content; margin-bottom: 3px; }
         .link-url { font-size: 11px; color: var(--primary-color); text-decoration: none; display: inline-block; word-break: break-all; margin-top: 2px; }
         .edit-mode-box { display: flex; flex-direction: column; gap: 6px; background: #f8fafc; padding: 8px; border-radius: 8px; width: 100%; margin: 4px 0; border: 1px solid #e2e8f0; }
 
         .check-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 4px; border-bottom: 1px solid #f8fafc; }
         .check-label { display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1; font-size: 14px; }
         .check-label.done span { text-decoration: line-through; color: #94a3b8; }
+
+        /* 드롭존 스타일 */
+        .drop-zone { background: #f0fdf4; border: 2px dashed #4ade80; padding: 14px; border-radius: 12px; text-align: center; color: #166534; font-size: 12px; font-weight: 700; margin-bottom: 16px; transition: all 0.2s; }
+        .drop-zone.dragover { background: #dcfce7; transform: scale(1.01); }
 
         .timeline { position: relative; padding-left: 20px; }
         .timeline::before { content: ''; position: absolute; left: 5px; top: 10px; bottom: 10px; width: 2px; background: #e2e8f0; }
@@ -82,46 +100,15 @@
         .location { font-size: 14px; font-weight: 700; color: #0f172a; margin: 2px 0; }
         .memo { font-size: 12px; color: #64748b; margin-bottom: 4px; }
 
-        /* 일정 플래너 사진 */
-        .timeline-img { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0; margin-top: 6px; cursor: pointer; }
-        .timeline-img-upload { margin-top: 6px; }
-
         .diary-card { border-bottom: 1px solid #e2e8f0; padding: 15px 0; }
         .diary-card:last-child { border-bottom: none; }
         .diary-date { font-size: 13px; font-weight: 700; color: var(--primary-color); margin-bottom: 6px; }
         .diary-img { width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px; margin: 8px 0; border: 1px solid #e2e8f0; }
         .diary-text { font-size: 14px; line-height: 1.6; color: #334155; word-break: break-all; background: #f8fafc; padding: 10px; border-radius: 8px; }
 
-        /* 모달 */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-width: 280px; width: 80%; }
         .modal-box p { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 14px; }
-
-        /* 이미지 확대 모달 */
-        .img-viewer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; }
-        .img-viewer-overlay img { max-width: 92vw; max-height: 85vh; border-radius: 12px; object-fit: contain; }
-        .img-viewer-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 28px; cursor: pointer; font-weight: bold; background: rgba(0,0,0,0.5); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-
-        /* 카테고리 추가 모달 */
-        .cat-add-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; justify-content: center; align-items: center; }
-        .cat-add-box { background: white; padding: 22px; border-radius: 16px; width: 85%; max-width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-        .cat-add-box h3 { font-size: 15px; font-weight: 800; margin-bottom: 14px; color: #0f172a; }
-        .cat-add-box input { width: 100%; margin-bottom: 10px; }
-        .cat-add-actions { display: flex; gap: 8px; margin-top: 6px; }
-
-        /* 날씨 위젯 */
-        .weather-widget { background: linear-gradient(135deg, #60a5fa, #2563eb); color: white; border-radius: 16px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        .weather-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .weather-header select { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); color: white; font-weight: bold; padding: 6px 10px; }
-        .weather-header select option { color: #1e293b; }
-        .weather-body { display: flex; align-items: center; justify-content: space-between; }
-        .weather-temp { font-size: 32px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-        .weather-info { text-align: right; font-size: 12px; opacity: 0.9; line-height: 1.5; }
-        .duration-display { font-size: 13px; color: var(--primary-color); font-weight: bold; background: #e0f2fe; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-top: 4px; }
-
-        /* 위시리스트 카테고리 삭제 버튼 */
-        .cat-tab-del { font-size: 10px; margin-left: 4px; color: #94a3b8; cursor: pointer; vertical-align: middle; }
-        .cat-tab-del:hover { color: var(--accent-color); }
     </style>
 </head>
 <body>
@@ -132,6 +119,9 @@
 
     <div class="backup-zone">
         <label style="font-size: 12px; font-weight: 800; color: var(--backup-color);">💾 시스템 데이터 관리 도구</label>
+        <div id="offline-exchange-status" class="exchange-status" style="margin-bottom: 4px; display: none; background: #fffbeb; color: #b45309; border: 1px solid #fde68a;">
+            ⚠️ 오프라인 모드: 기본 고정 환율 적용 중 (엔화 9.0)
+        </div>
         <div class="backup-btns">
             <button class="btn-backup" onclick="exportDataBackup()">📥 데이터 백업</button>
             <label class="btn-restore">
@@ -142,24 +132,6 @@
         </div>
     </div>
 
-    <div class="weather-widget">
-        <div class="weather-header">
-            <span style="font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 4px;">🌤️ 현지 실시간 날씨 위젯</span>
-            <select id="weather-city-select" onchange="fetchWeather()">
-                <option value="Tokyo">🇯🇵 도쿄</option>
-                <option value="Osaka">🇯🇵 오사카</option>
-                <option value="Fukuoka">🇯🇵 후쿠오카</option>
-                <option value="Nagoya">🇯🇵 나고야</option>
-                <option value="Sapporo">🇯🇵 삿포로</option>
-                <option value="Seoul">🇰🇷 서울</option>
-            </select>
-        </div>
-        <div class="weather-body" id="weather-body-content">
-            <div class="weather-temp">—°C</div>
-            <div class="weather-info">도시를 선택하면<br>날씨를 실시간으로 불러옵니다.</div>
-        </div>
-    </div>
-
     <div class="travel-selector">
         <label style="font-size: 12px; font-weight: 700; color: #475569;">✈️ 불러올 여행 폴더 선택</label>
         <div style="display: flex; gap: 8px;">
@@ -167,141 +139,151 @@
             <button class="btn-del" onclick="deleteTravelProject()" style="padding:0 10px;">삭제</button>
         </div>
         <div style="display: flex; gap: 8px; margin-top: 4px;">
-            <input type="text" id="new-travel-name" placeholder="새 여행 이름 (예: 도쿄/오사카)">
+            <input type="text" id="new-travel-name" placeholder="새 여행 이름 (예: 도쿄/오사카)" autocomplete="off" autocapitalize="off" spellcheck="false">
             <button class="btn-main" onclick="createNewTravel()" style="font-size:12px;">새 폴더 생성</button>
         </div>
     </div>
 
-    <div class="section">
-        <h2>📅 여행 기간 설정</h2>
-        <div class="input-row">
-            <div>
-                <label style="font-size: 11px; color:#64748b; display:block; margin-bottom:4px;">시작일</label>
-                <input type="date" id="travel-start-date" onchange="updateTravelPeriod()">
+    <nav class="nav-bar">
+        <button class="nav-btn active" onclick="switchPage('page-budget', this)">💰 가계부</button>
+        <button class="nav-btn" onclick="switchPage('page-wishlist', this)">🛍️ 위시리스트</button>
+        <button class="nav-btn" onclick="switchPage('page-packing', this)">🧳 짐싸기</button>
+        <button class="nav-btn" onclick="switchPage('page-planner', this)">📍 일정 플래너</button>
+        <button class="nav-btn" onclick="switchPage('page-diary', this)">📖 일기장</button>
+    </nav>
+
+    <div id="page-budget" class="page-section active">
+        <div class="section">
+            <h2>💰 예산 계산기 (과거순 정렬)</h2>
+            <div class="category-tabs" id="expense-tabs-container">
+                <button class="tab-btn active" onclick="switchExpenseTab('all', this)">🗓️ 모두보기</button>
+                <button class="tab-btn" onclick="switchExpenseTab('KRW', this)">₩ 원화</button>
+                <button class="tab-btn" onclick="switchExpenseTab('JPY', this)">¥ 엔화</button>
+                <button class="tab-btn" onclick="switchExpenseTab('USD', this)">$ 달러</button>
             </div>
-            <div>
-                <label style="font-size: 11px; color:#64748b; display:block; margin-bottom:4px;">종료일</label>
-                <input type="date" id="travel-end-date" onchange="updateTravelPeriod()">
+            
+            <div class="budget-summary">
+                <div class="budget-box"><span>총 예산 (KRW)</span><input type="number" id="total-budget" value="1000000" oninput="updateBudget()" style="width:100%; text-align:center; padding:4px; margin-top:4px;"></div>
+                <div class="budget-box"><span>남은 예산 (KRW)</span><p id="remaining-amount" style="color: var(--primary-color); margin-top:6px;">0 원</p></div>
             </div>
-        </div>
-        <div id="duration-summary-box">
-            <span class="duration-display" id="duration-text">날짜를 선택해 주세요.</span>
+            <div class="budget-summary" style="margin-top:-10px; margin-bottom:16px;">
+                <div class="budget-box" style="grid-column: span 2;"><span>총 사용 금액 (KRW)</span><p id="used-amount" style="color: var(--accent-color);">0 원</p></div>
+            </div>
+
+            <div class="input-row">
+                <input type="date" id="expense-date">
+                <select id="currency-select">
+                    <option value="all">✨ 전체 대상(공통)</option>
+                    <option value="KRW" selected>한국 원화 (₩)</option>
+                    <option value="JPY">일본 엔화 (¥)</option>
+                    <option value="USD">미국 달러 ($)</option>
+                    <option value="CNY">중국 위안화 (¥)</option>
+                </select>
+            </div>
+            <div class="input-row">
+                <input type="text" id="expense-title" placeholder="내역 (예: 식비/교통비)" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <input type="number" id="expense-cost" placeholder="금액 입력">
+                <button class="btn-main" onclick="addExpense()">내역 추가</button>
+            </div>
+            <ul class="expense-list" id="expense-list"></ul>
         </div>
     </div>
 
-    <div class="section">
-        <h2>💰 예산 계산기 (과거순 정렬)</h2>
-        <div class="category-tabs" id="expense-tabs-container">
-            <button class="tab-btn active" onclick="switchExpenseTab('all', this)">🗓️ 모두보기</button>
-            <button class="tab-btn" onclick="switchExpenseTab('KRW', this)">₩ 원화</button>
-            <button class="tab-btn" onclick="switchExpenseTab('JPY', this)">¥ 엔화</button>
-            <button class="tab-btn" onclick="switchExpenseTab('USD', this)">$ 달러</button>
+    <div id="page-wishlist" class="page-section">
+        <div class="section">
+            <h2>🛍️ 꼭 사야 할 쇼핑 위시리스트 <span style="font-size:11px; color:var(--primary-color); font-weight:normal;">(일정표로 드래그 가능 🎯)</span></h2>
+            <div class="category-tabs" id="wish-tabs-container">
+                <button class="tab-btn active" onclick="switchWishTab('all', this)">🛍️ 모두보기</button>
+                <button class="tab-btn" onclick="switchWishTab('destination', this)">🗺️ 여행지</button>
+                <button class="tab-btn" onclick="switchWishTab('goods', this)">🎯 굿즈</button>
+                <button class="tab-btn" onclick="switchWishTab('clothes', this)">👚 옷/의류</button>
+                <button class="tab-btn" onclick="switchWishTab('gift', this)">🎁 선물/기념품</button>
+                <button class="tab-btn" onclick="switchWishTab('etc', this)">기타</button>
+            </div>
+            <div class="input-row">
+                <select id="wish-cat-select">
+                    <option value="all">✨ 전체 대상(공통)</option>
+                    <option value="destination">🗺️ 여행지</option>
+                    <option value="goods" selected>🎯 굿즈</option>
+                    <option value="clothes">👚 옷/의류</option>
+                    <option value="gift">🎁 선물/기념품</option>
+                    <option value="etc">기타</option>
+                </select>
+                <input type="text" id="wish-title" placeholder="아이템 또는 여행 장소 이름" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <input type="text" id="wish-cost" placeholder="예상 가격/비용">
+            </div>
+            <div class="input-row">
+                <input type="text" id="wish-url" placeholder="참고 웹사이트 주소 링크 (선택)" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <input type="text" id="wish-memo" placeholder="상세 정보 및 메모" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <button class="btn-main" onclick="addWishItem()">위시 추가</button>
+            </div>
+            <ul class="expense-list" id="wish-list"></ul>
         </div>
-        <div class="budget-summary">
-            <div class="budget-box"><span>총 예산 (KRW)</span><input type="number" id="total-budget" value="1000000" oninput="updateBudget()" style="width:100%; text-align:center; padding:4px; margin-top:4px;"></div>
-            <div class="budget-box"><span>남은 예산 (KRW)</span><p id="remaining-amount" style="color: var(--primary-color); margin-top:6px;">0 원</p></div>
-        </div>
-        <div class="budget-summary" style="margin-top:-10px; margin-bottom:16px;">
-            <div class="budget-box" style="grid-column: span 2;"><span>총 사용 금액 (KRW)</span><p id="used-amount" style="color: var(--accent-color);">0 원</p></div>
-        </div>
-        <div class="input-row">
-            <select id="expense-date-select"></select>
-            <select id="currency-select">
-                <option value="all">✨ 전체 대상(공통)</option>
-                <option value="KRW" selected>한국 원화 (₩)</option>
-                <option value="JPY">일본 엔화 (¥)</option>
-                <option value="USD">미국 달러 ($)</option>
-                <option value="CNY">중국 위안화 (¥)</option>
-            </select>
-        </div>
-        <div class="input-row">
-            <input type="text" id="expense-title" placeholder="내역 (예: 식비/교통비)">
-            <input type="number" id="expense-cost" placeholder="금액 입력">
-            <button class="btn-main" onclick="addExpense()">내역 추가</button>
-        </div>
-        <ul class="expense-list" id="expense-list"></ul>
     </div>
 
-    <!-- ===== 위시리스트 (구: 쇼핑 위시리스트) ===== -->
-    <div class="section">
-        <h2>🛍️ 위시리스트</h2>
-        <div class="category-tabs" id="wish-tabs-container">
-            <!-- JS로 동적 생성 -->
+    <div id="page-packing" class="page-section">
+        <div class="section">
+            <h2>🧳 짐싸기 체크리스트</h2>
+            <div class="category-tabs" id="pack-tabs-container">
+                <button class="tab-btn active" onclick="switchPackTab('all', this)">🧳 모두보기</button>
+                <button class="tab-btn" onclick="switchPackTab('essential', this)">필수품</button>
+                <button class="tab-btn" onclick="switchPackTab('clothing', this)">의류/세면</button>
+                <button class="tab-btn" onclick="switchPackTab('etc', this)">기타</button>
+            </div>
+            <div class="input-row">
+                <select id="pack-cat-select">
+                    <option value="all">✨ 전체 대상(공통)</option>
+                    <option value="essential" selected>필수품</option>
+                    <option value="clothing">의류/세면</option>
+                    <option value="etc">기타</option>
+                </select>
+                <input type="text" id="todo-input" placeholder="새 준비물 추가..." autocomplete="off" autocapitalize="off" spellcheck="false">
+                <button class="btn-main" onclick="addTodo()">등록</button>
+            </div>
+            <div id="pack-container"></div>
         </div>
-        <div class="input-row">
-            <select id="wish-cat-select">
-                <!-- JS로 동적 생성 -->
-            </select>
-            <input type="text" id="wish-title" placeholder="아이템 이름">
-            <input type="text" id="wish-cost" placeholder="예상 가격">
-        </div>
-        <div class="input-row">
-            <input type="text" id="wish-url" placeholder="참고 웹사이트 주소 링크 (선택)">
-            <input type="text" id="wish-memo" placeholder="상세 정보 및 메모">
-            <button class="btn-main" onclick="addWishItem()">위시 추가</button>
-        </div>
-        <ul class="expense-list" id="wish-list"></ul>
     </div>
 
-    <!-- ===== 짐싸기 체크리스트 ===== -->
-    <div class="section">
-        <h2>🧳 짐싸기 체크리스트</h2>
-        <div class="category-tabs" id="pack-tabs-container">
-            <button class="tab-btn active" onclick="switchPackTab('all', this)">🧳 모두보기</button>
-            <button class="tab-btn" onclick="switchPackTab('essential', this)">필수품</button>
-            <button class="tab-btn" onclick="switchPackTab('clothing', this)">의류/세면</button>
-            <button class="tab-btn" onclick="switchPackTab('etc', this)">기타</button>
+    <div id="page-planner" class="page-section">
+        <div class="section">
+            <h2>📍 일정 플래너 (시간순 정렬)</h2>
+            
+            <div class="drop-zone" ondragover="allowDrop(event)" ondragleave="dragLeaveZone(event)" ondrop="dropWishItem(event)">
+                🎯 위시리스트 항목을 여기로 드래그하면 아래 선택된 일차에 바로 일정이 자동 추가됩니다!
+            </div>
+
+            <div class="category-tabs" id="day-tabs-nav"></div>
+            <div class="input-row">
+                <select id="plan-day-select"></select> 
+                <input type="time" id="plan-time" value="12:00">
+            </div>
+            <div class="input-row">
+                <input type="text" id="plan-location" placeholder="장소명" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <input type="text" id="plan-memo" placeholder="메모 내용" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+            <div class="input-row">
+                <input type="text" id="plan-url" placeholder="참고 웹사이트 주소 (선택)" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <button class="btn-main" onclick="addTimelineItem()">일정 추가</button>
+            </div>
+            <div class="timeline" id="timeline-container"></div>
         </div>
-        <div class="input-row">
-            <select id="pack-cat-select">
-                <option value="all">✨ 전체 대상(공통)</option>
-                <option value="essential" selected>필수품</option>
-                <option value="clothing">의류/세면</option>
-                <option value="etc">기타</option>
-            </select>
-            <input type="text" id="todo-input" placeholder="새 준비물 추가...">
-            <button class="btn-main" onclick="addTodo()">등록</button>
-        </div>
-        <div id="pack-container"></div>
     </div>
 
-    <!-- ===== 일정 플래너 ===== -->
-    <div class="section">
-        <h2>📍 일정 플래너 (시간순 정렬)</h2>
-        <div class="category-tabs" id="day-tabs-nav"></div>
-        <div class="input-row">
-            <select id="plan-day-select"></select>
-            <input type="time" id="plan-time" value="">
+    <div id="page-diary" class="page-section">
+        <div class="section">
+            <h2>📖 날짜별 여행 일기장 (과거순 정렬)</h2>
+            <div class="input-row">
+                <input type="date" id="diary-date">
+                <label class="file-label">🖼️ 사진 첨부<input type="file" id="diary-img-input" class="file-input" accept="image/*"></label>
+            </div>
+            <div class="input-row">
+                <textarea id="diary-text-input" placeholder="오늘의 특별한 기억을 기록하세요." autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+                <button class="btn-main" onclick="addDiary()" style="min-width:70px;">기록</button>
+            </div>
+            <div id="diary-container"></div>
         </div>
-        <div class="input-row">
-            <input type="text" id="plan-location" placeholder="장소명 또는 일정 제목">
-            <input type="text" id="plan-memo" placeholder="메모 내용">
-        </div>
-        <div class="input-row">
-            <input type="text" id="plan-url" placeholder="참고 웹사이트 주소 (선택)">
-            <label class="file-label" style="flex:none;">
-                🖼️ 사진 첨부
-                <input type="file" id="plan-img-input" class="file-input" accept="image/*">
-            </label>
-            <button class="btn-main" onclick="addTimelineItem()">일정 추가</button>
-        </div>
-        <div class="timeline" id="timeline-container"></div>
     </div>
 
-    <div class="section">
-        <h2>📖 날짜별 여행 일기장 (과거순 정렬)</h2>
-        <div class="input-row">
-            <select id="diary-date-select"></select>
-            <label class="file-label">🖼️ 사진 첨부<input type="file" id="diary-img-input" class="file-input" accept="image/*"></label>
-        </div>
-        <div class="input-row">
-            <textarea id="diary-text-input" placeholder="오늘의 특별한 기억을 기록하세요."></textarea>
-            <button class="btn-main" onclick="addDiary()" style="min-width:70px;">기록</button>
-        </div>
-        <div id="diary-container"></div>
-    </div>
-
-    <!-- 사진 등록 모달 -->
     <div class="modal-overlay" id="photo-modal">
         <div class="modal-box">
             <p>📸 사진이 성공적으로<br>등록되었습니다!</p>
@@ -309,257 +291,106 @@
         </div>
     </div>
 
-    <!-- 이미지 확대 뷰어 -->
-    <div class="img-viewer-overlay" id="img-viewer" onclick="closeImgViewer()">
-        <div class="img-viewer-close">✕</div>
-        <img id="img-viewer-src" src="" alt="">
-    </div>
-
-    <!-- 위시리스트 카테고리 추가 모달 -->
-    <div class="cat-add-modal" id="wish-cat-modal">
-        <div class="cat-add-box">
-            <h3>🏷️ 새 카테고리 추가</h3>
-            <p style="font-size:12px; color:#64748b; margin-bottom:10px;">카테고리 이름을 입력하세요. 색상은 자동으로 지정됩니다.</p>
-            <input type="text" id="new-wish-cat-input" placeholder="예: 뷰티, 전자제품, 음식...">
-            <div class="cat-add-actions">
-                <button class="btn-main" onclick="confirmAddWishCat()" style="flex:1; padding:10px;">추가하기</button>
-                <button class="btn-sort" onclick="closeWishCatModal()" style="flex:1; padding:10px;">취소</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        let exchangeRates = { JPY: 9.0, USD: 1370, CNY: 190 };
+        let exchangeRates = { JPY: 9.0, USD: 1370, CNY: 190 }; 
         let currentExpenseTab = 'all';
         let currentPackTab = 'all';
-        let currentDayTab = 'all';
+        let currentDayTab = 'all'; 
         let currentWishTab = 'all';
         let appData;
 
-        // ─── 위시리스트 기본 카테고리 및 색상 팔레트 ───
-        const DEFAULT_WISH_CATS = [
-            { key: 'goods',   label: '🎯 굿즈',     color: '#6366f1' },
-            { key: 'clothes', label: '👚 옷/의류',   color: '#ec4899' },
-            { key: 'gift',    label: '🎁 선물/기념품', color: '#f59e0b' },
-            { key: 'etc',     label: '📦 기타',      color: '#64748b' },
+        // 고정 필수 품목 세트 정의
+        const defaultPackList = [
+            { id: 1001, category: 'essential', text: '여권 및 비자(사본 포함)', done: false },
+            { id: 1002, category: 'essential', text: '환전 현금 및 해외결제 신용카드', done: false },
+            { id: 1003, category: 'essential', text: '스마트폰 충전기 및 보조배터리', done: false },
+            { id: 1004, category: 'essential', text: '비상 상비약 (감기약, 소화제, 밴드)', done: false },
+            { id: 1005, category: 'essential', text: '포켓 와이파이 / 로밍 / eSIM', done: false },
+            { id: 1006, category: 'clothing', text: '여벌 옷 및 속옷/양말', done: false },
+            { id: 1007, category: 'clothing', text: '세면도구 및 화장품/선크림', done: false }
         ];
 
-        // 랜덤 색상 팔레트 (매번 다른 색)
-        const COLOR_PALETTE = [
-            '#ef4444','#f97316','#eab308','#22c55e','#10b981',
-            '#14b8a6','#06b6d4','#3b82f6','#8b5cf6','#a855f7',
-            '#ec4899','#f43f5e','#84cc16','#0ea5e9','#d946ef',
-            '#fb923c','#4ade80','#34d399','#60a5fa','#c084fc'
-        ];
-        let usedColorIndex = 0;
-        function getNextColor() {
-            // 매 앱 로드시 랜덤 시작점, 이후 순차
-            const color = COLOR_PALETTE[usedColorIndex % COLOR_PALETTE.length];
-            usedColorIndex++;
-            return color;
-        }
-        function randomColor() {
-            return COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)];
+        // 페이지 전환 핸들러
+        function switchPage(pageId, btnElement) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            
+            // 드래그 기능 연결을 돕기 위해 위시리스트나 플래너 전환 시 리렌더링 유도
+            if(pageId === 'page-wishlist') renderWishList();
+            if(pageId === 'page-planner') { renderDayTabs(); renderTimeline(); }
         }
 
         function initStorage() {
             try {
-                let raw = localStorage.getItem('travelArchiveData_v5');
+                let raw = localStorage.getItem('travelArchiveData_v4');
                 if (raw) { appData = JSON.parse(raw); }
             } catch(e) { console.error(e); }
-
+            
             if (!appData || !appData.projects || !appData.currentProject) {
-                const today = new Date().toISOString().split('T')[0];
-                const nextWeek = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
                 appData = {
                     currentProject: "기본 여행 프로젝트 ✈️",
-                    wishCategories: JSON.parse(JSON.stringify(DEFAULT_WISH_CATS)),
                     projects: {
-                        "기본 여행 프로젝트 ✈️": {
-                            totalBudget: 1000000,
-                            startDate: today,
-                            endDate: nextWeek,
-                            expenses: [],
-                            wishItems: [],
-                            packItems: [],
-                            daysCount: 3,
-                            targetSchedule: { day1:[], day2:[], day3:[] },
-                            diaries: []
+                        "기본 여행 프로젝트 ✈️": { 
+                            totalBudget: 1000000, 
+                            expenses: [], 
+                            wishItems: [], 
+                            packItems: [...defaultPackList], // 고정 필수템 바인딩
+                            daysCount: 3, 
+                            targetSchedule: { day1:[], day2:[], day3:[] }, 
+                            diaries: [] 
                         }
                     }
                 };
             }
-            // 마이그레이션: wishCategories 없으면 추가
-            if (!appData.wishCategories) {
-                appData.wishCategories = JSON.parse(JSON.stringify(DEFAULT_WISH_CATS));
-            }
-            // usedColorIndex를 기존 카테고리 수 이후로 설정
-            usedColorIndex = appData.wishCategories.length;
         }
 
-        // ─── 위시리스트 카테고리 관리 ───
-        function openWishCatModal() {
-            document.getElementById('new-wish-cat-input').value = '';
-            document.getElementById('wish-cat-modal').style.display = 'flex';
-        }
-        function closeWishCatModal() {
-            document.getElementById('wish-cat-modal').style.display = 'none';
-        }
-        function confirmAddWishCat() {
-            const input = document.getElementById('new-wish-cat-input').value.trim();
-            if (!input) return;
-            const key = 'custom_' + Date.now();
-            const color = randomColor();
-            appData.wishCategories.push({ key, label: input, color, isCustom: true });
-            saveData();
-            renderWishCategoryTabs();
-            renderWishCatSelect();
-            closeWishCatModal();
-        }
-        function deleteWishCat(key) {
-            appData.wishCategories = appData.wishCategories.filter(c => c.key !== key);
-            // 해당 카테고리 아이템은 'etc'로 이동
-            const p = getActive();
-            p.wishItems.forEach(item => { if(item.category === key) item.category = 'etc'; });
-            if(currentWishTab === key) currentWishTab = 'all';
-            saveData();
-            renderWishCategoryTabs();
-            renderWishCatSelect();
-            renderWishList();
-        }
-        function getCatInfo(key) {
-            return appData.wishCategories.find(c => c.key === key) || { label: key, color: '#64748b' };
-        }
-
-        function renderWishCategoryTabs() {
-            const container = document.getElementById('wish-tabs-container');
-            container.innerHTML = '';
-
-            // 전체보기
-            const allBtn = document.createElement('button');
-            allBtn.className = 'tab-btn' + (currentWishTab === 'all' ? ' active' : '');
-            allBtn.textContent = '🛍️ 모두보기';
-            allBtn.onclick = () => switchWishTab('all', allBtn);
-            container.appendChild(allBtn);
-
-            // 각 카테고리
-            appData.wishCategories.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = 'tab-btn' + (currentWishTab === cat.key ? ' active' : '');
-                btn.style.cssText = currentWishTab === cat.key
-                    ? `background:${cat.color}; color:white; box-shadow:0 2px 6px ${cat.color}55;`
-                    : '';
-                btn.innerHTML = cat.label + (cat.isCustom ? `<span class="cat-tab-del" onclick="event.stopPropagation(); deleteWishCat('${cat.key}')">✕</span>` : '');
-                btn.onclick = (e) => { if(e.target.classList.contains('cat-tab-del')) return; switchWishTab(cat.key, btn); };
-                container.appendChild(btn);
-            });
-
-            // + 카테고리 추가 버튼
-            const addBtn = document.createElement('button');
-            addBtn.className = 'btn-add-tab';
-            addBtn.textContent = '+ 카테고리 추가';
-            addBtn.onclick = openWishCatModal;
-            container.appendChild(addBtn);
-        }
-
-        function renderWishCatSelect() {
-            const sel = document.getElementById('wish-cat-select');
-            sel.innerHTML = '';
-            appData.wishCategories.forEach(cat => {
-                const opt = document.createElement('option');
-                opt.value = cat.key;
-                opt.textContent = cat.label;
-                sel.appendChild(opt);
-            });
-        }
-
-        // ─── 날씨 ───
-        async function fetchWeather() {
-            const city = document.getElementById('weather-city-select').value;
-            const content = document.getElementById('weather-body-content');
+        function setTodayDates() {
             try {
-                const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=bca8037146522c002239d91f24d9c72e&units=metric&lang=kr`);
-                if(!res.ok) throw new Error();
-                const data = await res.json();
-                const temp = Math.round(data.main.temp);
-                const desc = data.weather[0].description;
-                const humidity = data.main.humidity;
-                const speed = data.wind.speed;
-                content.innerHTML = `<div class="weather-temp">${temp}°C</div><div class="weather-info">상태: <b>${desc}</b><br>습도: ${humidity}% | 풍속: ${speed}m/s</div>`;
-            } catch (e) {
-                const mockWeather = { Tokyo: [22, "맑음"], Osaka: [24, "구름조금"], Fukuoka: [21, "화창함"], Nagoya: [23, "선선함"], Sapporo: [14, "가벼운 비"], Seoul: [23, "맑음"] };
-                const picked = mockWeather[city] || [20, "쾌적"];
-                content.innerHTML = `<div class="weather-temp">${picked[0]}°C</div><div class="weather-info">상태: <b>${picked[1]}</b><br>네트워크 자동 보정 모드</div>`;
-            }
-        }
-
-        // ─── 여행 기간 ───
-        function updateTravelPeriod() {
-            const p = getActive();
-            const startVal = document.getElementById('travel-start-date').value;
-            const endVal = document.getElementById('travel-end-date').value;
-            if(!startVal || !endVal) return;
-            const start = new Date(startVal);
-            const end = new Date(endVal);
-            if(end < start) { alert("⚠️ 종료일이 시작일보다 빠를 수 없습니다."); document.getElementById('travel-end-date').value = p.endDate; return; }
-            p.startDate = startVal; p.endDate = endVal;
-            const diffDays = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24)) + 1;
-            p.daysCount = diffDays;
-            const oldSchedule = { ...p.targetSchedule };
-            p.targetSchedule = {};
-            for(let i = 1; i <= diffDays; i++) p.targetSchedule[`day${i}`] = oldSchedule[`day${i}`] || [];
-            saveData(); refreshDateSelectors(); renderDayTabs(); renderTimeline();
-        }
-
-        function refreshDateSelectors() {
-            const p = getActive();
-            const txt = document.getElementById('duration-text');
-            const expSelect = document.getElementById('expense-date-select');
-            const diarySelect = document.getElementById('diary-date-select');
-            if(!p.startDate || !p.endDate) return;
-            const start = new Date(p.startDate);
-            const nights = p.daysCount - 1;
-            txt.innerText = `✈️ ${nights}박 ${p.daysCount}일 일정 진행 중`;
-            if(expSelect && diarySelect) {
-                expSelect.innerHTML = ''; diarySelect.innerHTML = '';
-                for(let i=0; i<p.daysCount; i++) {
-                    let d = new Date(start); d.setDate(start.getDate() + i);
-                    let dateStr = d.toISOString().split('T')[0];
-                    let opt1 = document.createElement('option'); opt1.value = dateStr; opt1.innerText = `[${i+1}일차] ${dateStr}`;
-                    let opt2 = document.createElement('option'); opt2.value = dateStr; opt2.innerText = `[${i+1}일차] ${dateStr}`;
-                    expSelect.appendChild(opt1); diarySelect.appendChild(opt2);
-                }
-            }
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('expense-date').value = today;
+                document.getElementById('diary-date').value = today;
+            } catch(e){}
         }
 
         async function fetchExchangeRates() {
             try {
                 const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                if(!res.ok) throw new Error("Network status invalid");
                 const data = await res.json();
                 if(data && data.rates) {
                     exchangeRates.USD = parseFloat(data.rates.KRW.toFixed(1));
                     exchangeRates.JPY = parseFloat(((data.rates.KRW / data.rates.JPY) * 100).toFixed(2));
                     exchangeRates.CNY = parseFloat((data.rates.KRW / data.rates.CNY).toFixed(1));
+                    document.getElementById('offline-exchange-status').style.display = 'none';
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.log("작동 모드: 오프라인 모드 (내장 기본 환율 적용 완료)");
+                document.getElementById('offline-exchange-status').style.display = 'block';
+            }
             updateBudget(); renderExpenseList(); renderWishList();
         }
 
-        function saveData() {
-            try { localStorage.setItem('travelArchiveData_v5', JSON.stringify(appData)); }
-            catch(e) { alert("⚠️ 저장 용량 한도(5MB)가 초과되었습니다! 불필요한 사진을 삭제해 주세요."); }
+        function saveData() { 
+            try {
+                localStorage.setItem('travelArchiveData_v4', JSON.stringify(appData)); 
+            } catch(e) {
+                alert("⚠️ 저장 용량 한도(5MB)가 초과되었습니다! 불필요한 고용량 사진들을 삭제해 주세요.");
+            }
         }
 
-        function getActive() {
-            if(!appData.projects[appData.currentProject]) appData.currentProject = Object.keys(appData.projects)[0];
+        function getActive() { 
+            if(!appData.projects[appData.currentProject]) {
+                appData.currentProject = Object.keys(appData.projects)[0] || "기본 여행 프로젝트 ✈️";
+            }
             let p = appData.projects[appData.currentProject];
             if(!p.wishItems) p.wishItems = [];
             if(!p.diaries) p.diaries = [];
             if(!p.expenses) p.expenses = [];
-            if(!p.packItems) p.packItems = [];
-            if(!p.targetSchedule) p.targetSchedule = {};
-            if(!p.startDate) p.startDate = new Date().toISOString().split('T')[0];
-            if(!p.endDate) p.endDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            if(!p.packItems || p.packItems.length === 0) p.packItems = [...defaultPackList]; // 유실 방지 고정값 체크
+            if(!p.targetSchedule) p.targetSchedule = { day1:[], day2:[], day3:[] };
             if(!p.daysCount) p.daysCount = Object.keys(p.targetSchedule).length || 3;
             return p;
         }
@@ -573,26 +404,19 @@
                 img.onload = function () {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const maxW = 500;
+                    const maxW = 400; 
                     const scale = maxW / img.width;
                     canvas.width = img.width > maxW ? maxW : img.width;
                     canvas.height = img.width > maxW ? img.height * scale : img.height;
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    callback(canvas.toDataURL('image/jpeg', 0.6));
+                    callback(canvas.toDataURL('image/jpeg', 0.5));
                 };
             };
         }
 
-        // ─── 이미지 뷰어 ───
-        function openImgViewer(src) {
-            document.getElementById('img-viewer-src').src = src;
-            document.getElementById('img-viewer').style.display = 'flex';
-        }
-        function closeImgViewer() { document.getElementById('img-viewer').style.display = 'none'; }
-
         function forceResetApp() {
-            if(confirm("🚨 모든 여행 데이터가 초기화됩니다. 정말 원상복구 하실건가요?")) {
-                localStorage.removeItem('travelArchiveData_v5');
+            if(confirm("🚨 모든 여행 데이터와 고정 데이터가 리셋됩니다. 계속하시겠습니까?")) {
+                localStorage.removeItem('travelArchiveData_v4');
                 location.reload();
             }
         }
@@ -600,9 +424,13 @@
         function exportDataBackup() {
             try {
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
-                const a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", `travel_backup.json`);
-                document.body.appendChild(a); a.click(); a.remove();
-            } catch(e) { alert("용량 초과로 백업 실패"); }
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `travel_backup.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            } catch(e) { alert("용량 초과 백업 실패. 고용량 이미지를 정리하세요."); }
         }
 
         function importDataBackup(input) {
@@ -611,11 +439,14 @@
                 reader.onload = function(e) {
                     try {
                         const parsed = JSON.parse(e.target.result);
-                        if (parsed.projects) { appData = parsed; saveData(); initProjectDropdown(); loadProjectAll(); alert("✅ 복구 완료!"); }
-                        else { alert("❌ 형식 오류"); }
-                    } catch (err) { alert("❌ 오류 발생"); }
+                        if (parsed.projects) {
+                            appData = parsed; saveData(); initProjectDropdown(); loadProjectAll();
+                            alert("✅ 백업 데이터 복구 완료!");
+                        } else { alert("❌ 형식 에러 파일"); }
+                    } catch (err) { alert("❌ 파일 해석 오류"); }
                 };
-                reader.readAsText(input.files[0]); input.value = '';
+                reader.readAsText(input.files[0]);
+                input.value = '';
             }
         }
 
@@ -635,18 +466,24 @@
         function createNewTravel() {
             const name = document.getElementById('new-travel-name').value.trim(); if(!name) return;
             if(appData.projects[name]) return;
-            const today = new Date().toISOString().split('T')[0];
-            const nextWeek = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-            appData.projects[name] = { totalBudget: 1000000, startDate: today, endDate: nextWeek, expenses: [], wishItems: [], packItems: [], daysCount: 3, targetSchedule: { day1:[], day2:[], day3:[] }, diaries: [] };
+            appData.projects[name] = { 
+                totalBudget: 1000000, 
+                expenses: [], 
+                wishItems: [], 
+                packItems: [...defaultPackList], // 새 여행지 생성 시에도 필수 고정 세팅 주입
+                daysCount: 3, 
+                targetSchedule: { day1:[], day2:[], day3:[] }, 
+                diaries: [] 
+            };
             appData.currentProject = name; document.getElementById('new-travel-name').value = '';
             saveData(); initProjectDropdown(); loadProjectAll();
         }
 
         function changeTravel() { appData.currentProject = document.getElementById('travel-picker').value; saveData(); loadProjectAll(); }
-
+        
         function deleteTravelProject() {
             if(Object.keys(appData.projects).length <= 1) return;
-            if(confirm(`[${appData.currentProject}] 삭제할까요?`)) {
+            if(confirm(`[${appData.currentProject}] 프로젝트 폴더를 전체 삭제할까요?`)) {
                 delete appData.projects[appData.currentProject]; appData.currentProject = Object.keys(appData.projects)[0];
                 saveData(); initProjectDropdown(); loadProjectAll();
             }
@@ -656,21 +493,16 @@
             initStorage();
             const p = getActive();
             document.getElementById('total-budget').value = p.totalBudget;
-            document.getElementById('travel-start-date').value = p.startDate;
-            document.getElementById('travel-end-date').value = p.endDate;
-            refreshDateSelectors();
-            renderWishCategoryTabs();
-            renderWishCatSelect();
-            renderDayTabs();
-            updateBudget(); renderExpenseList(); renderWishList(); renderPack(); renderTimeline(); renderDiaries();
-            fetchWeather();
+            setTodayDates(); renderDayTabs(); updateBudget(); renderExpenseList(); renderWishList(); renderPack(); renderTimeline(); renderDiaries();
         }
 
-        // ─── 1. 가계부 ───
+        // --- 1. 가계부 시스템 ---
         function switchExpenseTab(target, btnElement) {
             document.querySelectorAll('#expense-tabs-container .tab-btn').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active'); currentExpenseTab = target;
-            document.getElementById('currency-select').value = target; renderExpenseList();
+            btnElement.classList.add('active');
+            currentExpenseTab = target;
+            document.getElementById('currency-select').value = target; 
+            renderExpenseList();
         }
 
         function updateBudget() {
@@ -682,11 +514,7 @@
         }
 
         function addExpense() {
-            const p = getActive();
-            const date = document.getElementById('expense-date-select').value;
-            const currency = document.getElementById('currency-select').value;
-            const title = document.getElementById('expense-title').value.trim();
-            const inputCost = parseFloat(document.getElementById('expense-cost').value);
+            const p = getActive(); const date = document.getElementById('expense-date').value; const currency = document.getElementById('currency-select').value; const title = document.getElementById('expense-title').value.trim(); const inputCost = parseFloat(document.getElementById('expense-cost').value);
             if(!title || isNaN(inputCost)) return;
             let costInKrw = Math.round(currency === 'JPY' ? (inputCost/100)*exchangeRates.JPY : currency === 'USD' ? inputCost*exchangeRates.USD : currency === 'CNY' ? inputCost*exchangeRates.CNY : inputCost);
             let currencySign = currency === 'JPY' ? '¥' : currency === 'USD' ? '$' : currency === 'CNY' ? '¥' : '₩';
@@ -698,10 +526,12 @@
         function renderExpenseList() {
             const p = getActive(); const listEl = document.getElementById('expense-list'); listEl.innerHTML = '';
             p.expenses.sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
+
             let filtered = p.expenses.filter(item => currentExpenseTab === 'all' || item.currency === currentExpenseTab || item.currency === 'all');
+
             filtered.forEach(item => {
                 const li = document.createElement('li'); li.className = 'expense-item';
-                let imgBox = item.img ? `<img src="${item.img}" class="attached-img" onclick="openImgViewer('${item.img}')">` : `<label class="file-label">📸 사진<input type="file" class="file-input" accept="image/*" onchange="uploadExpenseImg(${item.id}, this)"></label>`;
+                let imgBox = item.img ? `<img src="${item.img}" class="attached-img">` : `<label class="file-label">📸 사진<input type="file" class="file-input" accept="image/*" onchange="uploadExpenseImg(${item.id}, this)"></label>`;
                 let displaySign = item.currency === 'all' ? '전체' : item.currencySign;
                 li.innerHTML = `
                     <div class="expense-left">
@@ -716,28 +546,24 @@
                 listEl.appendChild(li);
             });
         }
-
+        
         function uploadExpenseImg(id, input) {
             const p = getActive(); if(input.files && input.files[0]) {
-                compressImage(input.files[0], function(url) {
-                    const item = p.expenses.find(ex => ex.id === id); if(item) { item.img = url; saveData(); document.getElementById(`ex-img-${id}`).innerHTML = `<img src="${url}" class="attached-img" onclick="openImgViewer('${url}')">`; openPhotoModal(); }
+                compressImage(input.files[0], function(compressedUrl) {
+                    const item = p.expenses.find(ex => ex.id === id); if(item) {
+                        item.img = compressedUrl; saveData();
+                        document.getElementById(`ex-img-${id}`).innerHTML = `<img src="${compressedUrl}" class="attached-img">`; openPhotoModal();
+                    }
                 });
             }
         }
-
+        
         function showEditExpenseForm(id) {
             const p = getActive(); const item = p.expenses.find(ex => ex.id === id);
-            let dateOptions = "";
-            const start = new Date(p.startDate);
-            for(let i=0; i<p.daysCount; i++) {
-                let d = new Date(start); d.setDate(start.getDate() + i);
-                let dateStr = d.toISOString().split('T')[0];
-                dateOptions += `<option value="${dateStr}" ${item.date===dateStr?'selected':''}>${dateStr}</option>`;
-            }
-            document.getElementById(`ex-display-${id}`).innerHTML = `<div class="edit-mode-box"><input type="text" id="edit-ex-title-${id}" value="${item.title}"><input type="number" id="edit-ex-cost-${id}" value="${item.inputCost}"><select id="edit-ex-date-${id}">${dateOptions}</select></div>`;
+            document.getElementById(`ex-display-${id}`).innerHTML = `<div class="edit-mode-box"><input type="text" id="edit-ex-title-${id}" value="${item.title}" autocomplete="off" autocapitalize="off" spellcheck="false"><input type="number" id="edit-ex-cost-${id}" value="${item.inputCost}"><input type="date" id="edit-ex-date-${id}" value="${item.date}"></div>`;
             document.getElementById(`ex-btns-${id}`).innerHTML = `<button class="btn-main" onclick="saveEditedExpense(${id})" style="padding:6px;">저장</button><button class="btn-sort" onclick="renderExpenseList()" style="padding:6px;">취소</button>`;
         }
-
+        
         function saveEditedExpense(id) {
             const p = getActive(); const item = p.expenses.find(ex => ex.id === id);
             const t = document.getElementById(`edit-ex-title-${id}`).value.trim(); const c = parseFloat(document.getElementById(`edit-ex-cost-${id}`).value); const d = document.getElementById(`edit-ex-date-${id}`).value;
@@ -745,46 +571,47 @@
             item.costInKrw = Math.round(item.currency === 'JPY' ? (c/100)*exchangeRates.JPY : item.currency === 'USD' ? c*exchangeRates.USD : item.currency === 'CNY' ? c*exchangeRates.CNY : c);
             updateBudget(); renderExpenseList();
         }
+        
         function deleteExpense(id) { const p = getActive(); p.expenses = p.expenses.filter(e => e.id !== id); updateBudget(); renderExpenseList(); }
 
-        // ─── 2. 위시리스트 ───
+        // --- 2. 쇼핑 및 여행지 위시리스트 (드래그 소스 기능 장착) ---
         function switchWishTab(target, btnElement) {
-            currentWishTab = target;
-            renderWishCategoryTabs(); // 탭 active 상태 갱신
+            document.querySelectorAll('#wish-tabs-container .tab-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active'); 
+            currentWishTab = target; 
+            document.getElementById('wish-cat-select').value = target; 
             renderWishList();
         }
-
+        
         function addWishItem() {
-            const p = getActive();
-            const category = document.getElementById('wish-cat-select').value;
-            const title = document.getElementById('wish-title').value.trim();
-            const cost = document.getElementById('wish-cost').value.trim();
-            const url = document.getElementById('wish-url').value.trim();
-            const memo = document.getElementById('wish-memo').value.trim();
+            const p = getActive(); const category = document.getElementById('wish-cat-select').value; const title = document.getElementById('wish-title').value.trim(); const cost = document.getElementById('wish-cost').value.trim(); const url = document.getElementById('wish-url').value.trim(); const memo = document.getElementById('wish-memo').value.trim();
             if(!title) return;
             p.wishItems.push({ id: Date.now(), category, title, cost: cost || '미정', url, memo: memo || '메모 없음', img: '' });
-            document.getElementById('wish-title').value = ''; document.getElementById('wish-cost').value = '';
-            document.getElementById('wish-url').value = ''; document.getElementById('wish-memo').value = '';
+            document.getElementById('wish-title').value = ''; document.getElementById('wish-cost').value = ''; document.getElementById('wish-url').value = ''; document.getElementById('wish-memo').value = '';
             saveData(); renderWishList();
         }
-
+        
         function renderWishList() {
             const p = getActive(); const container = document.getElementById('wish-list'); container.innerHTML = '';
             let filtered = p.wishItems.filter(item => currentWishTab === 'all' || item.category === currentWishTab || item.category === 'all');
+            
             if(filtered.length === 0) { container.innerHTML = '<p style="font-size:12px; color:#94a3b8; text-align:center; padding:12px 0;">등록된 아이템이 없습니다.</p>'; return; }
             filtered.forEach(item => {
-                const li = document.createElement('li'); li.className = 'expense-item';
-                const catInfo = getCatInfo(item.category);
-                const badgeStyle = `background:${catInfo.color}22; color:${catInfo.color}; border:1px solid ${catInfo.color}55;`;
-                let imgBox = item.img ? `<img src="${item.img}" class="attached-img" onclick="openImgViewer('${item.img}')">` : `<label class="file-label">📸 사진<input type="file" class="file-input" accept="image/*" onchange="uploadWishImg(${item.id}, this)"></label>`;
+                const li = document.createElement('li'); 
+                li.className = 'expense-item draggable';
+                li.setAttribute('draggable', 'true');
+                li.setAttribute('ondragstart', `dragWishStart(event, ${item.id})`); // 드래그 이벤트 연결
+                
+                // 여행지 카테고리 뱃지 분기 처리 추가
+                let catText = item.category === 'destination' ? '🗺️ 여행지' : item.category === 'goods' ? '🎯 굿즈' : item.category === 'clothes' ? '👚 옷' : item.category === 'gift' ? '🎁 선물' : item.category === 'all' ? '✨ 공통' : '기타';
+                let imgBox = item.img ? `<img src="${item.img}" class="attached-img">` : `<label class="file-label">📸 사진<input type="file" class="file-input" accept="image/*" onchange="uploadWishImg(${item.id}, this)"></label>`;
                 let linkTag = item.url ? `<br><a href="${item.url.startsWith('http') ? item.url : 'https://'+item.url}" target="_blank" class="link-url">🔗 상품 링크 바로가기</a>` : '';
                 li.innerHTML = `
                     <div class="expense-left">
                         <div id="wish-img-${item.id}" style="margin-right:8px;">${imgBox}</div>
                         <div class="expense-info" id="wish-display-${item.id}">
-                            <span class="wish-badge" style="${badgeStyle}">${catInfo.label}</span>
-                            <span style="font-weight:700; font-size:14px;">${item.title}</span>
-                            <span style="font-size:12px; color:var(--wish-color); font-weight:600; margin-top:2px;">예상가: ${item.cost}</span>
+                            <span class="wish-badge" style="background:${item.category==='destination'?'#dbeafe':''}; color:${item.category==='destination'?'#1e40af':''};">${catText}</span><span style="font-weight:700; font-size:14px;">${item.title}</span>
+                            <span style="font-size:12px; color:var(--wish-color); font-weight:600; margin-top:2px;">예상 비용: ${item.cost}</span>
                             <span class="currency-detail">📝 ${item.memo}</span>${linkTag}
                         </div>
                     </div>
@@ -794,294 +621,237 @@
             });
         }
 
+        // HTML5 드래그 앤 드롭 데이터 전송 엔진
+        function dragWishStart(ev, id) {
+            ev.dataTransfer.setData("text/plain", id);
+        }
+        
         function uploadWishImg(id, input) {
             const p = getActive(); if(input.files && input.files[0]) {
-                compressImage(input.files[0], function(url) {
-                    const item = p.wishItems.find(w => w.id === id); if(item) { item.img = url; saveData(); document.getElementById(`wish-img-${id}`).innerHTML = `<img src="${url}" class="attached-img" onclick="openImgViewer('${url}')">`; openPhotoModal(); }
+                compressImage(input.files[0], function(compressedUrl) {
+                    const item = p.wishItems.find(w => w.id === id); if(item) { item.img = compressedUrl; saveData(); document.getElementById(`wish-img-${id}`).innerHTML = `<img src="${compressedUrl}" class="attached-img">`; openPhotoModal(); }
                 });
             }
         }
-
+        
         function showEditWishForm(id) {
             const p = getActive(); const item = p.wishItems.find(w => w.id === id);
-            let catOptions = appData.wishCategories.map(c => `<option value="${c.key}" ${item.category===c.key?'selected':''}>${c.label}</option>`).join('');
             document.getElementById(`wish-display-${id}`).innerHTML = `
                 <div class="edit-mode-box">
-                    <select id="edit-wish-cat-${id}">${catOptions}</select>
-                    <input type="text" id="edit-wish-title-${id}" value="${item.title}">
-                    <input type="text" id="edit-wish-cost-${id}" value="${item.cost}">
-                    <input type="text" id="edit-wish-memo-${id}" value="${item.memo}">
-                    <input type="text" id="edit-wish-url-${id}" value="${item.url || ''}">
+                    <select id="edit-wish-cat-${id}"><option value="all">✨ 공통</option><option value="destination" ${item.category==='destination'?'selected':''}>🗺️ 여행지</option><option value="goods" ${item.category==='goods'?'selected':''}>🎯 굿즈</option><option value="clothes" ${item.category==='clothes'?'selected':''}>👚 옷</option><option value="gift" ${item.category==='gift'?'selected':''}>🎁 선물</option><option value="etc" ${item.category==='etc'?'selected':''}>기타</option></select>
+                    <input type="text" id="edit-wish-title-${id}" value="${item.title}" autocomplete="off" autocapitalize="off" spellcheck="false"><input type="text" id="edit-wish-cost-${id}" value="${item.cost}"><input type="text" id="edit-wish-memo-${id}" value="${item.memo}" autocomplete="off" autocapitalize="off" spellcheck="false"><input type="text" id="edit-wish-url-${id}" value="${item.url || ''}" autocomplete="off" autocapitalize="off" spellcheck="false">
                 </div>`;
             document.getElementById(`wish-btns-${id}`).innerHTML = `<button class="btn-main" onclick="saveEditedWishItem(${id})" style="padding:6px;">저장</button><button class="btn-sort" onclick="renderWishList()" style="padding:6px;">취소</button>`;
         }
-
+        
         function saveEditedWishItem(id) {
-            const p = getActive(); const item = p.wishItems.find(w => w.id === id);
-            item.category = document.getElementById(`edit-wish-cat-${id}`).value;
-            item.title = document.getElementById(`edit-wish-title-${id}`).value.trim();
-            item.cost = document.getElementById(`edit-wish-cost-${id}`).value.trim() || '미정';
-            item.memo = document.getElementById(`edit-wish-memo-${id}`).value.trim() || '메모 없음';
-            item.url = document.getElementById(`edit-wish-url-${id}`).value.trim();
-            if(!item.title) return; saveData(); renderWishList();
+            const p = getActive(); const item = p.wishItems.find(w => w.id === id); const cat = document.getElementById(`edit-wish-cat-${id}`).value; const title = document.getElementById(`edit-wish-title-${id}`).value.trim(); const cost = document.getElementById(`edit-wish-cost-${id}`).value.trim(); const memo = document.getElementById(`edit-wish-memo-${id}`).value.trim(); const url = document.getElementById(`edit-wish-url-${id}`).value.trim();
+            if(!title) return; item.category = cat; item.title = title; item.cost = cost || '미정'; item.memo = memo || '메모 없음'; item.url = url;
+            saveData(); renderWishList();
         }
-        function deleteWishItem(id) { const p = getActive(); p.wishItems = p.wishItems.filter(w => w.id !== id); saveData(); renderWishList(); }
+        
+        // 위시리스트 고유 아이템 삭제 전 검증 확인창 연동 활성화
+        function deleteWishItem(id) { 
+            const p = getActive(); 
+            const item = p.wishItems.find(w => w.id === id);
+            let checkMsg = item ? `[${item.title}] 항목을 위시리스트에서 완전히 삭제할까요?` : "선택한 카테고리 항목을 정말 삭제하시겠습니까?";
+            if(confirm(checkMsg)) {
+                p.wishItems = p.wishItems.filter(w => w.id !== id); 
+                saveData(); 
+                renderWishList(); 
+            }
+        }
 
-        // ─── 3. 짐싸기 체크리스트 ───
+        // --- 3. 짐싸기 체크리스트 ---
         function switchPackTab(target, btnElement) {
             document.querySelectorAll('#pack-tabs-container .tab-btn').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active'); currentPackTab = target;
-            document.getElementById('pack-cat-select').value = target; renderPack();
+            btnElement.classList.add('active'); 
+            currentPackTab = target; 
+            document.getElementById('pack-cat-select').value = target; 
+            renderPack();
         }
-
+        
         function addTodo() {
             const p = getActive(); const input = document.getElementById('todo-input'); const cat = document.getElementById('pack-cat-select').value;
-            if(!input.value.trim()) return;
-            p.packItems.push({ id: Date.now(), category: cat, text: input.value, done: false });
+            if(!input.value.trim()) return; p.packItems.push({ id: Date.now(), category: cat, text: input.value, done: false });
             input.value = ''; saveData(); renderPack();
         }
-
+        
         function renderPack() {
             const p = getActive(); const container = document.getElementById('pack-container'); container.innerHTML = '';
             p.packItems.filter(i => currentPackTab === 'all' || i.category === currentPackTab || i.category === 'all').forEach(item => {
                 const div = document.createElement('div'); div.className = 'check-item';
                 let catBadge = item.category === 'essential' ? '필수' : item.category === 'clothing' ? '의류' : item.category === 'all' ? '공통' : '기타';
-
-                if (item._editing) {
-                    div.innerHTML = `
-                        <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
-                            <input type="text" id="edit-pack-${item.id}" value="${item.text}" style="flex:none;">
-                            <div style="display:flex; gap:4px;">
-                                <button class="btn-main" onclick="saveEditPack(${item.id})" style="padding:5px 10px; font-size:12px;">저장</button>
-                                <button class="btn-sort" onclick="cancelEditPack(${item.id})" style="padding:5px 10px; font-size:12px;">취소</button>
-                            </div>
-                        </div>`;
-                } else {
-                    div.innerHTML = `
-                        <label class="check-label ${item.done ? 'done' : ''}">
-                            <input type="checkbox" ${item.done?'checked':''} onclick="togglePackCheck(${item.id})">
-                            <span>[${catBadge}] ${item.text}</span>
-                        </label>
-                        <div class="action-btns">
-                            <button class="btn-edit" onclick="startEditPack(${item.id})">수정</button>
-                            <button class="btn-del" onclick="deletePack(${item.id})">삭제</button>
-                        </div>`;
-                }
+                div.innerHTML = `<label class="check-label ${item.done ? 'done' : ''}"><input type="checkbox" ${item.done?'checked':''} onclick="togglePackCheck(${item.id})"><span>[${catBadge}] ${item.text}</span></label><button class="btn-del" onclick="deletePack(${item.id})">삭제</button>`;
                 container.appendChild(div);
             });
         }
-
-        function startEditPack(id) {
-            const p = getActive(); const item = p.packItems.find(i => i.id === id);
-            if(item) { item._editing = true; renderPack(); }
-        }
-        function cancelEditPack(id) {
-            const p = getActive(); const item = p.packItems.find(i => i.id === id);
-            if(item) { item._editing = false; renderPack(); }
-        }
-        function saveEditPack(id) {
-            const p = getActive(); const item = p.packItems.find(i => i.id === id);
-            const val = document.getElementById(`edit-pack-${id}`).value.trim();
-            if(!val) return; item.text = val; item._editing = false; saveData(); renderPack();
-        }
+        
         function togglePackCheck(id) { const p = getActive(); const item = p.packItems.find(i => i.id === id); if(item) item.done = !item.done; saveData(); renderPack(); }
         function deletePack(id) { const p = getActive(); p.packItems = p.packItems.filter(i => i.id !== id); saveData(); renderPack(); }
 
-        // ─── 4. 일정 플래너 (사진 추가) ───
+        // --- 4. 일정 플래너 및 드롭 타겟 시스템 ---
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('dragover');
+        }
+
+        function dragLeaveZone(ev) {
+            ev.currentTarget.classList.remove('dragover');
+        }
+
+        // 위시리스트 드래그 드롭 받아 처리하는 핵심 기능
+        function dropWishItem(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('dragover');
+            
+            const wishItemId = ev.dataTransfer.getData("text/plain");
+            if(!wishItemId) return;
+
+            const p = getActive();
+            const targetItem = p.wishItems.find(w => w.id == wishItemId);
+            
+            if(targetItem) {
+                // 드롭 시점 기준 플래너 탭의 타겟 일차 할당 판단 (기본값 day1)
+                let activeDayKey = currentDayTab === 'all' ? 'day1' : currentDayTab;
+                
+                if(!p.targetSchedule[activeDayKey]) p.targetSchedule[activeDayKey] = [];
+                
+                // 타겟 구조 빌딩 및 스케줄러 인입 복사
+                p.targetSchedule[activeDayKey].push({
+                    id: Date.now(),
+                    time: "12:00", // 기본 설정 가상 타임라인 얼라인먼트
+                    location: targetItem.title,
+                    memo: `[위시추가] 예상비용:${targetItem.cost} / 메모:${targetItem.memo}`,
+                    url: targetItem.url,
+                    isAllDay: false
+                });
+                
+                saveData();
+                renderTimeline();
+                alert(`✅ 위시리스트의 [${targetItem.title}] 항목이 플래너 ${activeDayKey.replace('day','')}일차 일정으로 복사 추가되었습니다!`);
+            }
+        }
+
         function renderDayTabs() {
             const p = getActive(); const nav = document.getElementById('day-tabs-nav'); const select = document.getElementById('plan-day-select');
             if(!nav || !select) return;
-            nav.innerHTML = `<button class="tab-btn ${currentDayTab==='all'?'active':''}" onclick="switchDayTab('all')">🗓️ 모든날짜</button>`;
-            select.innerHTML = `<option value="all">✨ 전체 대상(공통일정)</option>`;
-            const start = new Date(p.startDate);
+            nav.innerHTML = `<button class="tab-btn ${currentDayTab==='all'?'active':''}" onclick="switchDayTab('all')">🗓️ 모든날짜</button>`; select.innerHTML = '';
+            select.innerHTML += `<option value="all">✨ 전체 대상(공통일정)</option>`;
+
             for(let i=1; i<=p.daysCount; i++) {
                 let key = `day${i}`;
                 if(!p.targetSchedule[key]) p.targetSchedule[key] = [];
-                let d = new Date(start); d.setDate(start.getDate() + (i - 1));
-                let dateString = d.toISOString().split('T')[0];
-                nav.innerHTML += `<button class="tab-btn ${currentDayTab===key?'active':''}" onclick="switchDayTab('${key}')">${i}일차 (${dateString.slice(5)})</button>`;
-                select.innerHTML += `<option value="${key}">${i}일차 (${dateString})</option>`;
+                nav.innerHTML += `<button class="tab-btn ${currentDayTab===key?'active':''}" onclick="switchDayTab('${key}')">${i}일차</button>`;
+                select.innerHTML += `<option value="${key}">${i}일차</option>`;
             }
-            if (currentDayTab !== 'all' && !p.targetSchedule[currentDayTab]) currentDayTab = 'all';
+            nav.innerHTML += `<button class="btn-add-tab" onclick="addNewTravelDay()">+ 일차 추가</button>`;
+            select.value = currentDayTab;
         }
-
+        
+        function addNewTravelDay() { const p = getActive(); p.daysCount++; p.targetSchedule[`day${p.daysCount}`] = []; saveData(); renderDayTabs(); renderTimeline(); }
         function switchDayTab(target) { currentDayTab = target; renderDayTabs(); renderTimeline(); }
-
+        
         function addTimelineItem() {
-            const p = getActive();
-            const dayKey = document.getElementById('plan-day-select').value;
-            const time = document.getElementById('plan-time').value;
-            const location = document.getElementById('plan-location').value.trim();
-            const memo = document.getElementById('plan-memo').value.trim();
-            const url = document.getElementById('plan-url').value.trim();
-            const fileInput = document.getElementById('plan-img-input');
-            if(!location) return;
+            const p = getActive(); const dayKey = document.getElementById('plan-day-select').value; const time = document.getElementById('plan-time').value; const location = document.getElementById('plan-location').value.trim(); const memo = document.getElementById('plan-memo').value.trim(); const url = document.getElementById('plan-url').value.trim();
+            if(!location) return; 
 
-            const saveItem = (imgData) => {
-                const targetKey = dayKey === 'all' ? 'day1' : dayKey;
-                if(!p.targetSchedule[targetKey]) p.targetSchedule[targetKey] = [];
-                p.targetSchedule[targetKey].push({
-                    id: Date.now(), time: time || '', location,
-                    memo: dayKey === 'all' ? memo + ' (공통)' : memo,
-                    url, img: imgData || '', isAllDay: dayKey === 'all'
-                });
-                document.getElementById('plan-location').value = '';
-                document.getElementById('plan-memo').value = '';
-                document.getElementById('plan-url').value = '';
-                document.getElementById('plan-time').value = '';
-                fileInput.value = '';
-                saveData(); renderTimeline();
-                if(imgData) openPhotoModal();
-            };
-
-            if(fileInput.files && fileInput.files[0]) {
-                compressImage(fileInput.files[0], saveItem);
+            if(dayKey === 'all') {
+                if(!p.targetSchedule['day1']) p.targetSchedule['day1'] = [];
+                p.targetSchedule['day1'].push({ id: Date.now(), time, location, memo: memo + ' (공통)', url, isAllDay: true });
             } else {
-                saveItem('');
+                if(!p.targetSchedule[dayKey]) p.targetSchedule[dayKey] = [];
+                p.targetSchedule[dayKey].push({ id: Date.now(), time, location, memo, url, isAllDay: false });
             }
+            
+            document.getElementById('plan-location').value = ''; document.getElementById('plan-memo').value = ''; document.getElementById('plan-url').value = '';
+            saveData(); renderTimeline();
         }
-
-        function sortTimelineList(list) {
-            return list.sort((a, b) => {
-                if (!a.time && b.time) return 1;
-                if (a.time && !b.time) return -1;
-                if (!a.time && !b.time) return a.id - b.id;
-                return a.time.localeCompare(b.time) || a.id - b.id;
-            });
-        }
-
+        
         function renderTimeline() {
             const p = getActive(); const container = document.getElementById('timeline-container'); container.innerHTML = '';
-            const start = new Date(p.startDate);
-
             const appendItem = (dayKey, item, index) => {
                 const div = document.createElement('div'); div.className = 'timeline-item';
-                let dayNum = parseInt(dayKey.replace('day',''));
-                let d = new Date(start); d.setDate(start.getDate() + (dayNum - 1));
-                let dateString = d.toISOString().split('T')[0];
-                let badge = `<span class="day-badge">${dayNum}일차 (${dateString})</span> `;
-                let timeDisplay = item.time ? `<span class="time">⏰ ${item.time}</span>` : `<span class="time" style="color:#94a3b8;">📌 시간 미지정</span>`;
                 let linkTag = item.url ? `<br><a href="${item.url.startsWith('http') ? item.url : 'https://'+item.url}" target="_blank" class="link-url">🔗 참고 웹사이트 이동</a>` : '';
-                let imgTag = item.img ? `<br><img src="${item.img}" class="timeline-img" onclick="openImgViewer('${item.img}')">` : '';
-                let imgUpload = !item.img ? `<div class="timeline-img-upload"><label class="file-label" style="font-size:11px;">📸 사진 추가<input type="file" class="file-input" accept="image/*" onchange="uploadTimelineImg('${dayKey}', ${index}, this)"></label></div>` : '';
-
+                let badge = `<span class="day-badge">${dayKey.replace('day','')}일차</span> `;
                 div.innerHTML = `
-                    <div style="flex:1;" id="tl-display-${dayKey}-${index}">
-                        ${badge}${timeDisplay}
-                        <div class="location">${item.location}</div>
-                        <div class="memo">${item.memo || '메모 없음'}</div>
-                        ${linkTag}${imgTag}${imgUpload}
-                    </div>
-                    <div class="action-btns" id="tl-btns-${dayKey}-${index}">
-                        <button class="btn-edit" onclick="showEditTimelineForm('${dayKey}', ${index})">수정</button>
-                        <button class="btn-del" onclick="deleteTimeline('${dayKey}', ${index})">삭제</button>
-                    </div>`;
+                    <div style="flex:1;" id="tl-display-${dayKey}-${index}">${badge}<span class="time">${item.time}</span><div class="location">${item.location}</div><div class="memo">${item.memo || '메모 없음'}</div>${linkTag}</div>
+                    <div class="action-btns" id="tl-btns-${dayKey}-${index}"><button class="btn-edit" onclick="showEditTimelineForm('${dayKey}', ${index})">수정</button><button class="btn-del" onclick="deleteTimeline('${dayKey}', ${index})">삭제</button></div>`;
                 container.appendChild(div);
             };
 
             if (currentDayTab === 'all') {
-                for(let i=1; i<=p.daysCount; i++) {
-                    let key = `day${i}`;
-                    let list = [...(p.targetSchedule[key] || [])];
-                    sortTimelineList(list);
-                    list.forEach((item, index) => appendItem(key, item, index));
+                for(let i=1; i<=p.daysCount; i++) { 
+                    let key = `day${i}`; 
+                    let list = p.targetSchedule[key] || []; 
+                    list.sort((a,b) => a.time.localeCompare(b.time) || a.id - b.id); 
+                    list.forEach((item, index) => appendItem(key, item, index)); 
                 }
             } else {
-                let list = [...(p.targetSchedule[currentDayTab] || [])];
-                sortTimelineList(list);
-                list.forEach((item, index) => appendItem(currentDayTab, item, index));
+                let list = p.targetSchedule[currentDayTab] || []; 
+                list.sort((a,b) => a.time.localeCompare(b.time) || a.id - b.id); 
+                list.forEach((item, index) => appendItem(currentDayTab, item, index)); 
             }
         }
-
-        function uploadTimelineImg(dayKey, index, input) {
-            const p = getActive();
-            if(input.files && input.files[0]) {
-                compressImage(input.files[0], function(url) {
-                    if(p.targetSchedule[dayKey] && p.targetSchedule[dayKey][index]) {
-                        p.targetSchedule[dayKey][index].img = url;
-                        saveData(); renderTimeline(); openPhotoModal();
-                    }
-                });
-            }
-        }
-
+        
         function showEditTimelineForm(dayKey, index) {
             const p = getActive(); const item = p.targetSchedule[dayKey][index];
-            document.getElementById(`tl-display-${dayKey}-${index}`).innerHTML = `
-                <div class="edit-mode-box">
-                    <input type="time" id="edit-tl-time-${dayKey}-${index}" value="${item.time || ''}">
-                    <input type="text" id="edit-tl-loc-${dayKey}-${index}" value="${item.location}">
-                    <input type="text" id="edit-tl-memo-${dayKey}-${index}" value="${item.memo || ''}">
-                    <input type="text" id="edit-tl-url-${dayKey}-${index}" value="${item.url || ''}">
-                    ${item.img ? `<div style="display:flex; align-items:center; gap:8px; margin-top:4px;"><img src="${item.img}" style="width:50px; height:50px; object-fit:cover; border-radius:8px;"><button class="btn-del" onclick="removeTimelineImg('${dayKey}', ${index})" style="font-size:11px; padding:4px 8px;">사진 삭제</button></div>` : `<label class="file-label" style="font-size:11px; margin-top:4px;">📸 사진 추가<input type="file" class="file-input" accept="image/*" onchange="uploadTimelineImg('${dayKey}', ${index}, this)"></label>`}
-                </div>`;
+            document.getElementById(`tl-display-${dayKey}-${index}`).innerHTML = `<div class="edit-mode-box"><input type="time" id="edit-tl-time-${dayKey}-${index}" value="${item.time}"><input type="text" id="edit-tl-loc-${dayKey}-${index}" value="${item.location}" autocomplete="off" autocapitalize="off" spellcheck="false"><input type="text" id="edit-tl-memo-${dayKey}-${index}" value="${item.memo || ''}" autocomplete="off" autocapitalize="off" spellcheck="false"><input type="text" id="edit-tl-url-${dayKey}-${index}" value="${item.url || ''}" autocomplete="off" autocapitalize="off" spellcheck="false}"></div>`;
             document.getElementById(`tl-btns-${dayKey}-${index}`).innerHTML = `<button class="btn-main" onclick="saveEditedTimeline('${dayKey}', ${index})" style="padding:6px;">저장</button><button class="btn-sort" onclick="renderTimeline()" style="padding:6px;">취소</button>`;
         }
-
-        function removeTimelineImg(dayKey, index) {
-            const p = getActive();
-            if(p.targetSchedule[dayKey] && p.targetSchedule[dayKey][index]) {
-                p.targetSchedule[dayKey][index].img = '';
-                saveData(); renderTimeline();
-            }
-        }
-
+        
         function saveEditedTimeline(dayKey, index) {
             const p = getActive(); const item = p.targetSchedule[dayKey][index];
-            item.time = document.getElementById(`edit-tl-time-${dayKey}-${index}`).value;
-            item.location = document.getElementById(`edit-tl-loc-${dayKey}-${index}`).value.trim();
-            item.memo = document.getElementById(`edit-tl-memo-${dayKey}-${index}`).value.trim();
-            item.url = document.getElementById(`edit-tl-url-${dayKey}-${index}`).value.trim();
+            item.time = document.getElementById(`edit-tl-time-${dayKey}-${index}`).value; item.location = document.getElementById(`edit-tl-loc-${dayKey}-${index}`).value.trim(); item.memo = document.getElementById(`edit-tl-memo-${dayKey}-${index}`).value.trim(); item.url = document.getElementById(`edit-tl-url-${dayKey}-${index}`).value.trim();
             saveData(); renderTimeline();
         }
+        
         function deleteTimeline(dayKey, index) { const p = getActive(); p.targetSchedule[dayKey].splice(index, 1); saveData(); renderTimeline(); }
 
-        // ─── 5. 여행 일기장 ───
+        // --- 5. 여행 일기장 ---
         function addDiary() {
-            const p = getActive();
-            const dateInput = document.getElementById('diary-date-select').value;
-            const textInput = document.getElementById('diary-text-input').value.trim();
-            const fileInput = document.getElementById('diary-img-input');
+            const p = getActive(); const dateInput = document.getElementById('diary-date').value; const textInput = document.getElementById('diary-text-input').value.trim(); const fileInput = document.getElementById('diary-img-input');
             if(!textInput) return;
+            const finalDate = dateInput || new Date().toISOString().split('T')[0];
+            
             const recordDiaryObj = (imgData) => {
-                if(!p.diaries) p.diaries = [];
-                p.diaries.push({ id: Date.now(), date: dateInput, text: textInput, img: imgData || '' });
+                if(!p.diaries) p.diaries = []; 
+                p.diaries.push({ id: Date.now(), date: finalDate, text: textInput, img: imgData || '' }); 
                 p.diaries.sort((a,b) => a.date.localeCompare(b.date) || a.id - b.id);
-                document.getElementById('diary-text-input').value = ''; fileInput.value = '';
-                saveData(); renderDiaries(); if(imgData) openPhotoModal();
+                document.getElementById('diary-text-input').value = ''; fileInput.value = ''; saveData(); renderDiaries(); if(imgData) openPhotoModal();
             };
-            if(fileInput.files && fileInput.files[0]) { compressImage(fileInput.files[0], recordDiaryObj); }
-            else { recordDiaryObj(''); }
+            
+            if(fileInput.files && fileInput.files[0]) { 
+                compressImage(fileInput.files[0], function(compressedUrl) { recordDiaryObj(compressedUrl); });
+            } else { recordDiaryObj(''); }
         }
-
+        
         function renderDiaries() {
             const p = getActive(); const container = document.getElementById('diary-container'); container.innerHTML = '';
             if(!p.diaries || p.diaries.length === 0) { container.innerHTML = '<p style="font-size:12px; color:#94a3b8; text-align:center; padding:15px 0;">등록된 일기가 없습니다.</p>'; return; }
             p.diaries.sort((a,b) => a.date.localeCompare(b.date) || a.id - b.id);
+
             p.diaries.forEach(item => {
-                const div = document.createElement('div'); div.className = 'diary-card';
-                let imgTag = item.img ? `<img src="${item.img}" class="diary-img" onclick="openImgViewer('${item.img}')">` : '';
+                const div = document.createElement('div'); div.className = 'diary-card'; let imgTag = item.img ? `<img src="${item.img}" class="diary-img">` : '';
                 div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <span class="diary-date">📅 ${item.date}</span>
-                        <div class="action-btns"><button class="btn-edit" onclick="showEditDiaryForm(${item.id})">수정</button><button class="btn-del" onclick="deleteDiary(${item.id})">삭제</button></div>
-                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span class="diary-date">📅 ${item.date}</span><div class="action-btns"><button class="btn-edit" onclick="showEditDiaryForm(${item.id})">수정</button><button class="btn-del" onclick="deleteDiary(${item.id})">삭제</button></div></div>
                     ${imgTag}<div class="diary-text" id="diary-text-box-${item.id}">${item.text.replace(/\n/g, '<br>')}</div>`;
                 container.appendChild(div);
             });
         }
+        
         function showEditDiaryForm(id) {
             const p = getActive(); const item = p.diaries.find(d => d.id === id);
-            document.getElementById(`diary-text-box-${id}`).innerHTML = `<textarea id="edit-diary-text-${id}" style="width:100%; margin-top:6px; font-size:13px;">${item.text}</textarea><div style="display:flex; gap:4px; margin-top:4px;"><button class="btn-main" onclick="saveEditedDiary(${id})" style="padding:4px 10px; font-size:12px;">저장</button><button class="btn-sort" onclick="renderDiaries()" style="padding:4px 10px; font-size:12px;">취소</button></div>`;
+            document.getElementById(`diary-text-box-${id}`).innerHTML = `<textarea id="edit-diary-text-${id}" style="width:100%; margin-top:6px; font-size:13px;" autocomplete="off" autocapitalize="off" spellcheck="false">${item.text}</textarea><div style="display:flex; gap:4px; margin-top:4px;"><button class="btn-main" onclick="saveEditedDiary(${id})" style="padding:4px 10px; font-size:12px;">저장</button><button class="btn-sort" onclick="renderDiaries()" style="padding:4px 10px; font-size:12px;">취소</button></div>`;
         }
+        
         function saveEditedDiary(id) { const p = getActive(); const item = p.diaries.find(d => d.id === id); const nt = document.getElementById(`edit-diary-text-${id}`).value.trim(); if(!nt) return; item.text = nt; saveData(); renderDiaries(); }
         function deleteDiary(id) { const p = getActive(); if(confirm('이 일기를 삭제할까요?')) { p.diaries = p.diaries.filter(d => d.id !== id); saveData(); renderDiaries(); } }
 
-        // ─── 초기화 ───
         try {
             initStorage();
-            initProjectDropdown();
-            loadProjectAll();
+            initProjectDropdown(); 
+            loadProjectAll(); 
             fetchExchangeRates();
         } catch(e) { console.error(e); }
     </script>
